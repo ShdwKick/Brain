@@ -1,0 +1,303 @@
+/* Оформление тренажёра. UI-токены — те же Material 3 (violet seed), что у
+   остальных сервисов: это интерфейсный слой, общий для всех, см.
+   BurningHouse/Design/palette.md. Пламя — литий, малиновое. */
+
+:root{
+  --flame-base:#9d174d;
+  --flame-tip:#ff5c8a;
+  --night-1:#120a13;
+  --night-2:#2e1024;
+  --dawn-1:#fff2f6;
+  --dawn-2:#ffd6e4;
+
+  --md-sys-color-primary:#5b4fe0;
+  --md-sys-color-on-primary:#ffffff;
+  --md-sys-color-primary-container:#e4dfff;
+  --md-sys-color-on-primary-container:#180265;
+  --md-sys-color-secondary-container:#e3e0f9;
+  --md-sys-color-on-secondary-container:#1a1836;
+  --md-sys-color-error:#ba1a1a;
+  --md-sys-color-on-error-container:#410002;
+  --md-sys-color-error-container:#ffdad6;
+  --md-sys-color-surface:#fbf8ff;
+  --md-sys-color-on-surface:#1c1b20;
+  --md-sys-color-on-surface-variant:#46464f;
+  --md-sys-color-surface-container-lowest:#ffffff;
+  --md-sys-color-surface-container-low:#f5f2fa;
+  --md-sys-color-surface-container:#efecf4;
+  --md-sys-color-surface-container-high:#e9e6ee;
+  --md-sys-color-outline:#777680;
+  --md-sys-color-outline-variant:#c7c5d0;
+
+  --r-s:8px; --r-m:12px; --r-l:16px; --r-xl:28px; --r-full:9999px;
+  --md-font:"Roboto Flex","Segoe UI",system-ui,Roboto,sans-serif;
+  --ease-std:cubic-bezier(0.2,0,0,1);
+  --ease-emph-dec:cubic-bezier(0.05,0.7,0.1,1);
+  --e1:0 1px 2px rgba(0,0,0,.05),0 2px 6px rgba(0,0,0,.06);
+  --e2:0 2px 6px rgba(0,0,0,.07),0 8px 20px rgba(0,0,0,.08);
+
+  --dark-primary:#c6bfff; --dark-on-primary:#2e1591;
+  --dark-primary-container:#4335a8; --dark-on-primary-container:#e4dfff;
+  --dark-secondary-container:#45435c; --dark-on-secondary-container:#e3e0f9;
+  --dark-error:#ffb4ab; --dark-on-error-container:#ffdad6; --dark-error-container:#93000a;
+  --dark-surface:#141318; --dark-on-surface:#e5e1e9; --dark-on-surface-variant:#c8c5d0;
+  --dark-surface-container-lowest:#0f0e13; --dark-surface-container-low:#1c1b20;
+  --dark-surface-container:#201f25; --dark-surface-container-high:#2b2930;
+  --dark-outline:#918f9a; --dark-outline-variant:#46464f;
+  --dark-e2:0 2px 6px rgba(0,0,0,.3),0 8px 20px rgba(0,0,0,.35);
+}
+
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --md-sys-color-primary:var(--dark-primary); --md-sys-color-on-primary:var(--dark-on-primary);
+    --md-sys-color-primary-container:var(--dark-primary-container); --md-sys-color-on-primary-container:var(--dark-on-primary-container);
+    --md-sys-color-secondary-container:var(--dark-secondary-container); --md-sys-color-on-secondary-container:var(--dark-on-secondary-container);
+    --md-sys-color-error:var(--dark-error); --md-sys-color-on-error-container:var(--dark-on-error-container); --md-sys-color-error-container:var(--dark-error-container);
+    --md-sys-color-surface:var(--dark-surface); --md-sys-color-on-surface:var(--dark-on-surface); --md-sys-color-on-surface-variant:var(--dark-on-surface-variant);
+    --md-sys-color-surface-container-lowest:var(--dark-surface-container-lowest); --md-sys-color-surface-container-low:var(--dark-surface-container-low);
+    --md-sys-color-surface-container:var(--dark-surface-container); --md-sys-color-surface-container-high:var(--dark-surface-container-high);
+    --md-sys-color-outline:var(--dark-outline); --md-sys-color-outline-variant:var(--dark-outline-variant);
+    --e2:var(--dark-e2);
+  }
+}
+:root[data-theme="dark"]{
+  --md-sys-color-primary:var(--dark-primary); --md-sys-color-on-primary:var(--dark-on-primary);
+  --md-sys-color-primary-container:var(--dark-primary-container); --md-sys-color-on-primary-container:var(--dark-on-primary-container);
+  --md-sys-color-secondary-container:var(--dark-secondary-container); --md-sys-color-on-secondary-container:var(--dark-on-secondary-container);
+  --md-sys-color-error:var(--dark-error); --md-sys-color-on-error-container:var(--dark-on-error-container); --md-sys-color-error-container:var(--dark-error-container);
+  --md-sys-color-surface:var(--dark-surface); --md-sys-color-on-surface:var(--dark-on-surface); --md-sys-color-on-surface-variant:var(--dark-on-surface-variant);
+  --md-sys-color-surface-container-lowest:var(--dark-surface-container-lowest); --md-sys-color-surface-container-low:var(--dark-surface-container-low);
+  --md-sys-color-surface-container:var(--dark-surface-container); --md-sys-color-surface-container-high:var(--dark-surface-container-high);
+  --md-sys-color-outline:var(--dark-outline); --md-sys-color-outline-variant:var(--dark-outline-variant);
+  --e2:var(--dark-e2);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body.scroll-lock{overflow:hidden}
+html{background:var(--md-sys-color-surface)}
+body{
+  font-family:var(--md-font);
+  color:var(--md-sys-color-on-surface);
+  background:transparent;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+}
+
+/* ===================== ШАПКА ===================== */
+.topbar{
+  position:relative;z-index:1;
+  display:flex;align-items:center;justify-content:space-between;
+  max-width:960px;margin:0 auto;padding:20px 20px 0;
+}
+.icon-btn{
+  width:44px;height:44px;border-radius:var(--r-full);
+  border:0;background:transparent;color:var(--md-sys-color-on-surface-variant);
+  cursor:pointer;display:grid;place-items:center;overflow:hidden;position:relative;flex:none;
+}
+.icon-btn::after{content:"";position:absolute;inset:0;background:currentColor;opacity:0;transition:opacity .2s}
+.icon-btn:hover::after{opacity:.08}
+.icon-btn:active::after{opacity:.12}
+.icon{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* ===================== ГЕРОЙ ===================== */
+.hero{
+  position:relative;z-index:1;
+  max-width:960px;margin:0 auto;padding:56px 20px 36px;text-align:center;
+}
+.hero h1{font-size:clamp(28px,4vw,38px);font-weight:650;letter-spacing:-.01em}
+.hero p{margin-top:10px;font-size:15px;color:var(--md-sys-color-on-surface-variant);max-width:48ch;margin-inline:auto}
+
+/* ===================== ОСНОВНАЯ ОБЛАСТЬ ===================== */
+#view{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:0 20px 72px}
+
+/* ---- хаб: группы по когнитивным доменам ---- */
+.domain-group + .domain-group{margin-top:36px}
+.domain-title{font-size:14px;font-weight:650;letter-spacing:.02em;text-transform:uppercase;color:var(--md-sys-color-on-surface-variant);margin-bottom:14px}
+
+.hub-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+
+.ex-card{
+  all:unset;box-sizing:border-box;cursor:pointer;
+  display:flex;flex-direction:column;gap:10px;
+  border-radius:var(--r-l);padding:20px;
+  background:color-mix(in srgb,var(--md-sys-color-surface-container-lowest) 78%,transparent);
+  backdrop-filter:blur(14px) saturate(1.1);
+  border:1px solid var(--md-sys-color-outline-variant);
+  box-shadow:var(--e1);
+  transition:transform .22s var(--ease-emph-dec),box-shadow .22s var(--ease-emph-dec),border-color .22s;
+}
+.ex-card:hover{transform:translateY(-4px);box-shadow:var(--e2);border-color:color-mix(in srgb,var(--flame-tip) 45%,var(--md-sys-color-outline-variant))}
+.ex-card:focus-visible{outline:2px solid var(--md-sys-color-primary);outline-offset:3px}
+.ex-card:active{transform:translateY(-1px)}
+.ex-card .row{display:flex;align-items:center;gap:10px}
+.ex-card .bh-mark{width:1.6em;height:1.6em;flex:none;opacity:.9}
+.ex-card h2{font-size:16.5px;font-weight:650;letter-spacing:-.005em;flex:1}
+.ex-card .teaser{font-size:13.5px;line-height:1.5;color:var(--md-sys-color-on-surface-variant)}
+
+/* ===================== УПРАЖНЕНИЕ: ОБЩАЯ ОБВЯЗКА ===================== */
+.ex-header{display:flex;align-items:center;gap:12px;padding:28px 0 22px}
+.back-btn{
+  all:unset;cursor:pointer;display:grid;place-items:center;
+  width:40px;height:40px;border-radius:var(--r-full);flex:none;
+  color:var(--md-sys-color-on-surface-variant);position:relative;
+}
+.back-btn::after{content:"";position:absolute;inset:0;border-radius:inherit;background:currentColor;opacity:0;transition:opacity .2s}
+.back-btn:hover::after{opacity:.08}
+.ex-header .titles{flex:1;min-width:0}
+.ex-header h1{font-size:21px;font-weight:650;letter-spacing:-.005em}
+.ex-header .domain-tag{font-size:12.5px;color:var(--md-sys-color-on-surface-variant);opacity:.8}
+
+.ex-stage{
+  border-radius:var(--r-xl);padding:28px 24px 32px;min-height:min(60vh,520px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;text-align:center;
+  background:color-mix(in srgb,var(--md-sys-color-surface-container-lowest) 82%,transparent);
+  backdrop-filter:blur(14px) saturate(1.1);
+  border:1px solid var(--md-sys-color-outline-variant);
+  box-shadow:var(--e1);
+}
+
+.ex-intro{display:flex;flex-direction:column;align-items:center;gap:18px;max-width:52ch}
+.ex-intro p{font-size:14.5px;line-height:1.6;color:var(--md-sys-color-on-surface-variant)}
+.ex-options{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+
+.chip-group{display:inline-flex;border-radius:var(--r-full);background:var(--md-sys-color-surface-container);padding:3px;gap:2px}
+.chip{
+  all:unset;cursor:pointer;padding:8px 16px;border-radius:var(--r-full);
+  font-size:13.5px;font-weight:600;color:var(--md-sys-color-on-surface-variant);
+}
+.chip[aria-pressed="true"]{background:var(--md-sys-color-primary);color:var(--md-sys-color-on-primary)}
+
+/* ---- HUD во время игры ---- */
+.ex-hud{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.hud-stat{
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:8px 16px;border-radius:var(--r-m);background:var(--md-sys-color-surface-container);
+  min-width:72px;
+}
+.hud-stat .v{font-size:19px;font-weight:700;font-variant-numeric:tabular-nums}
+.hud-stat .l{font-size:11px;color:var(--md-sys-color-on-surface-variant);text-transform:uppercase;letter-spacing:.03em}
+
+/* ---- результат ---- */
+.ex-result{display:flex;flex-direction:column;align-items:center;gap:20px}
+.ex-result .headline{font-size:22px;font-weight:650;letter-spacing:-.005em}
+.stat-row{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.stat-row .stat{
+  padding:12px 20px;border-radius:var(--r-m);background:var(--md-sys-color-surface-container);
+  min-width:96px;
+}
+.stat-row .stat .v{display:block;font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+.stat-row .stat .l{display:block;margin-top:2px;font-size:11.5px;color:var(--md-sys-color-on-surface-variant)}
+.ex-result .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+
+/* ---- buttons ---- */
+.btn{
+  position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  height:44px;padding:0 22px;border:0;border-radius:var(--r-full);
+  font-family:inherit;font-size:14.5px;font-weight:600;cursor:pointer;overflow:hidden;
+  background:transparent;color:var(--md-sys-color-primary);text-decoration:none;
+}
+.btn::after{content:"";position:absolute;inset:0;background:currentColor;opacity:0;transition:opacity .2s}
+.btn:hover::after{opacity:.08}
+.btn:active::after{opacity:.12}
+.btn.filled{background:var(--md-sys-color-primary);color:var(--md-sys-color-on-primary)}
+.btn.outlined{border:1px solid var(--md-sys-color-outline)}
+.btn:disabled{opacity:.45;cursor:default;pointer-events:none}
+
+/* ===================== ОБЩИЕ ВИДЖЕТЫ УПРАЖНЕНИЙ ===================== */
+
+/* Квадратная сетка ячеек — Шульте, Corsi. --cols задаёт число колонок. */
+.tile-grid{
+  display:grid; gap:8px; width:min(100%, 26rem);
+  grid-template-columns:repeat(var(--cols,3), 1fr);
+}
+.tile{
+  all:unset;box-sizing:border-box;cursor:pointer;aspect-ratio:1;
+  display:grid;place-items:center;border-radius:var(--r-m);
+  background:var(--md-sys-color-surface-container);
+  font-size:clamp(14px,3.4vw,20px);font-weight:650;font-variant-numeric:tabular-nums;
+  border:1px solid var(--md-sys-color-outline-variant);
+  transition:background .12s,transform .12s,border-color .12s;
+  user-select:none;-webkit-user-select:none;
+}
+.tile:hover{border-color:var(--md-sys-color-outline)}
+.tile:active{transform:scale(.94)}
+.tile.is-done{background:var(--md-sys-color-secondary-container);color:var(--md-sys-color-on-secondary-container)}
+.tile.is-lit{background:color-mix(in srgb, var(--flame-tip) 55%, var(--md-sys-color-surface-container));border-color:transparent}
+.tile.is-wrong{background:var(--md-sys-color-error-container);color:var(--md-sys-color-on-error-container)}
+.tile.is-active{outline:2px solid var(--md-sys-color-primary);outline-offset:2px}
+
+/* Цветные плашки — Струп. */
+.swatch-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.swatch{
+  all:unset;box-sizing:border-box;cursor:pointer;width:76px;height:52px;border-radius:var(--r-m);
+  border:2px solid var(--md-sys-color-outline-variant);transition:transform .12s;
+}
+.swatch:hover{transform:translateY(-2px)}
+.swatch:active{transform:translateY(0) scale(.96)}
+.stroop-word{font-size:38px;font-weight:700;letter-spacing:.01em}
+
+/* Анаграммы */
+.scramble-word{font-size:34px;font-weight:700;letter-spacing:.14em;font-variant-numeric:tabular-nums}
+.ex-form{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.ex-input{
+  height:44px;padding:0 16px;border-radius:var(--r-full);
+  border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface-container-lowest);
+  color:var(--md-sys-color-on-surface);font-family:inherit;font-size:16px;min-width:14rem;text-align:center;
+}
+.ex-input:focus{outline:2px solid var(--md-sys-color-primary);outline-offset:1px}
+.feedback{font-size:13.5px;min-height:1.4em;color:var(--md-sys-color-on-surface-variant)}
+.feedback.is-good{color:#2e7d32}
+.feedback.is-bad{color:var(--md-sys-color-error)}
+
+/* Ханойская башня */
+.hanoi-board{display:flex;gap:22px;align-items:flex-end;justify-content:center;width:100%;padding-top:10px}
+.hanoi-peg{
+  all:unset;cursor:pointer;position:relative;flex:1;max-width:9rem;
+  display:flex;flex-direction:column-reverse;align-items:center;gap:6px;
+  padding:0 0 14px;border-radius:var(--r-s);
+}
+.hanoi-peg::before{
+  content:"";position:absolute;left:50%;bottom:14px;top:8px;width:6px;transform:translateX(-50%);
+  border-radius:3px;background:var(--md-sys-color-outline-variant);z-index:0;
+}
+.hanoi-peg::after{
+  content:"";display:block;height:8px;width:100%;border-radius:4px;
+  background:var(--md-sys-color-outline-variant);
+}
+.hanoi-peg.is-selected{outline:2px dashed var(--md-sys-color-primary);outline-offset:4px;border-radius:var(--r-m)}
+.hanoi-disk{
+  position:relative;z-index:1;height:22px;border-radius:var(--r-full);
+  background:color-mix(in srgb, var(--flame-tip) var(--tone,50%), var(--flame-base));
+  box-shadow:var(--e1);
+}
+
+/* Мысленное вращение фигур */
+.rotation-board{display:flex;flex-direction:column;gap:22px;align-items:center;width:100%}
+.rotation-reference{padding:14px;border-radius:var(--r-m);background:var(--md-sys-color-surface-container)}
+.rotation-candidates{display:flex;flex-wrap:wrap;gap:14px;justify-content:center}
+.rotation-candidate{
+  all:unset;cursor:pointer;padding:12px;border-radius:var(--r-m);
+  background:var(--md-sys-color-surface-container);border:2px solid transparent;
+}
+.rotation-candidate:hover{border-color:var(--md-sys-color-outline)}
+.rotation-candidate[aria-pressed="true"]{border-color:var(--md-sys-color-primary)}
+.shape-svg rect{fill:var(--flame-tip)}
+
+/* Переключение правил */
+.switch-cue{font-size:15px;font-weight:650;color:var(--md-sys-color-on-surface-variant);text-transform:uppercase;letter-spacing:.03em}
+.switch-stimulus{display:grid;place-items:center;width:8rem;height:8rem;border-radius:var(--r-l)}
+.switch-stimulus .n{font-size:44px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.25)}
+.switch-answers{display:flex;gap:14px}
+
+/* ===================== ФУТЕР ===================== */
+.foot{
+  position:relative;z-index:1;text-align:center;
+  padding:0 20px 32px;font-size:12.5px;color:var(--md-sys-color-on-surface-variant);opacity:.7;
+}
+
+@media (max-width:30rem){
+  .hero{padding-top:44px}
+  .ex-stage{padding:22px 16px 26px}
+  .hanoi-board{gap:12px}
+}

@@ -1,0 +1,18 @@
+name: bh-brain
+
+services:
+  brain:
+    image: shadowkick/brain:latest
+    container_name: brain
+    restart: unless-stopped
+    labels:
+      # Watchtower обновляет контейнер сам, когда в Docker Hub появляется новый
+      # образ — метка строго opt-in, установка: deploy/watchtower-compose.yml
+      # в репозитории Auth.
+      com.centurylinklabs.watchtower.enable: "true"
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8795
+    ports:
+      # Только на localhost — наружу отдаёт nginx на 443 (см. deploy/nginx-brain-443.conf).
+      - "127.0.0.1:8795:8795"

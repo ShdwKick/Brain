@@ -1,0 +1,16 @@
+name: bh-brain
+
+services:
+  brain:
+    build: .
+    image: shadowkick/brain:latest
+    container_name: brain
+    restart: unless-stopped
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8795
+    ports:
+      # По умолчанию слушаем только localhost — наружу отдаёт nginx (см. README.md остальных сервисов).
+      - "127.0.0.1:8795:8795"
+
+# Ни базы, ни volume: страница статическая, состояния не хранит.
