@@ -51,6 +51,7 @@ export default {
       const cols = pairsCount <= 8 ? 4 : 6;
       const values = shuffle([...LETTERS.slice(0, pairsCount), ...LETTERS.slice(0, pairsCount)]);
       const cards = values.map(value => ({ value, revealed: false, matched: false }));
+      const rows = Math.ceil((pairsCount * 2) / cols);
       let firstPick = null;
       let flips = 0;
       let matchedPairs = 0;
@@ -62,7 +63,7 @@ export default {
           <div class="hud-stat"><span class="v" id="elapsed">0.0 с</span><span class="l">Время</span></div>
           <div class="hud-stat"><span class="v" id="flips">0</span><span class="l">Попытки</span></div>
         </div>
-        <div class="tile-grid" id="grid" style="--cols:${cols}"></div>
+        <div class="tile-grid" id="grid" style="--cols:${cols};--rows:${rows}"></div>
       `;
       const grid = container.querySelector("#grid");
       const flipsEl = container.querySelector("#flips");

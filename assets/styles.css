@@ -255,14 +255,27 @@ body{
 
 /* Квадратная сетка ячеек — Шульте, Corsi. --cols задаёт число колонок. */
 .tile-grid{
-  display:grid; gap:8px; width:min(100%, 26rem);
+  display:grid; gap:8px;
   grid-template-columns:repeat(var(--cols,3), 1fr);
+  container-type:inline-size;
+  /* Ширина считается и от доступной высоты (100vh/dvh минус шапка и HUD упражнения),
+     чтобы сетка целиком помещалась на экране без прокрутки — иначе на низких/альбомных
+     экранах телефона нижние ряды карточек уезжали за край. container-type делает
+     .tile-grid контейнером для cqw-единиц в .tile — размер буквы там считается от
+     фактической ширины сетки, а не от vw, поэтому шрифт ужимается вместе с ней. */
+  width:min(100%, 26rem, calc((100vh - 280px) * var(--cols,3) / var(--rows, var(--cols,3))));
+  width:min(100%, 26rem, calc((100dvh - 280px) * var(--cols,3) / var(--rows, var(--cols,3))));
 }
 .tile{
   all:unset;box-sizing:border-box;cursor:pointer;aspect-ratio:1;
   display:grid;place-items:center;border-radius:var(--r-m);
   background:var(--md-sys-color-surface-container-high);
-  font-size:clamp(17px,4.4vw,26px);font-weight:700;font-variant-numeric:tabular-nums;
+  /* min-width/height:0 позволяют плитке сжаться теснее размера буквы — иначе
+     грид-ячейка (min-width:auto по умолчанию) отказывается уменьшаться и сетка
+     вылезает за пределы .tile-grid на тесных экранах. 40cqw/cols ≈ 40% от ширины
+     одной ячейки .tile-grid (cqw считается от контейнера-родителя, не от себя). */
+  min-width:0;min-height:0;
+  font-size:clamp(12px, calc(40cqw / var(--cols,4)), 26px);font-weight:700;font-variant-numeric:tabular-nums;
   border:1px solid var(--md-sys-color-outline);
   box-shadow:var(--e1);
   transition:background .12s,transform .12s,border-color .12s;
