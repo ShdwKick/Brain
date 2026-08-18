@@ -7,6 +7,7 @@
    перезагрузку и умеет не только расти, но и снижаться, если не заходит. */
 
 import { getLevel, adjustLevel } from "../difficulty.js";
+import { bad } from "../feedback.js";
 
 const LEVELS = [3, 4, 5, 6];
 const DRAG_THRESHOLD = 6; // px, отделяет драг от простого клика/тапа
@@ -140,6 +141,7 @@ export default {
             timers.push(setTimeout(finish, 300));
           }
         } else {
+          bad();
           renderBoard();
           const targetEl = container.querySelector(`.hanoi-peg[data-peg="${to}"]`);
           if (targetEl) {

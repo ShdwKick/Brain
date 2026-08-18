@@ -10,6 +10,8 @@
    настоящих поворотов — в вариантах ответа появляются визуально одинаковые
    фигуры, что и было замечено при игре. */
 
+import { good, bad } from "../feedback.js";
+
 const SHAPES = [
   [[1, 0], [2, 0], [0, 1], [1, 1], [1, 2]],           // F
   [[0, 0], [0, 1], [0, 2], [0, 3], [1, 3]],           // L
@@ -116,7 +118,7 @@ export default {
         scoreCorrectPicks += roundGood;
         scoreWrongPicks += roundBad;
         const trueCount = candidates.filter(c => c.isTrue).length;
-        if (roundGood === trueCount && roundBad === 0) roundsFullyCorrect++;
+        if (roundGood === trueCount && roundBad === 0) { roundsFullyCorrect++; good(); } else { bad(); }
 
         container.querySelectorAll("#candidates .rotation-candidate").forEach((btn, i) => {
           if (candidates[i].isTrue) btn.style.outline = "2px solid #2e7d32";

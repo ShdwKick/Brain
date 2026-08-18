@@ -5,6 +5,7 @@
    только между попытками. */
 
 import { getLevel, adjustLevel } from "../difficulty.js";
+import { good, bad } from "../feedback.js";
 
 const LETTERS = ["Б","В","Г","Д","Ж","К","Л","М","Н","П","Р","С","Т","Ф","Х"];
 const LEVELS = [1, 2, 3];
@@ -76,7 +77,7 @@ export default {
         if (!running || idx < 0 || idx >= TOTAL || responded) return;
         responded = true;
         const isTarget = idx >= n && letters[idx] === letters[idx - n];
-        if (isTarget) hits++; else falseAlarms++;
+        if (isTarget) { good(); hits++; } else { bad(); falseAlarms++; }
       }
 
       function tick() {

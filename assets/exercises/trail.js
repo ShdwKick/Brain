@@ -4,6 +4,7 @@
    это не сетка, а сканирование площади плюс переключение между двумя рядами. */
 
 import { getLevel, adjustLevel } from "../difficulty.js";
+import { good, bad } from "../feedback.js";
 
 const LETTERS = ["А", "Б", "В", "Г", "Д", "Е", "Ж", "З", "И", "К"];
 const LEVELS = [6, 8, 10];
@@ -94,6 +95,7 @@ export default {
 
       function onNodeClick(i, el) {
         if (i === nextIndex) {
+          good();
           el.classList.add("is-done");
           if (nextIndex > 0) {
             const prev = positions[nextIndex - 1], cur = positions[nextIndex];
@@ -105,6 +107,7 @@ export default {
           if (nextIndex >= seq.length) { finish(); return; }
           targetEl.textContent = seq[nextIndex];
         } else if (!el.classList.contains("is-done")) {
+          bad();
           errors++;
           errorsEl.textContent = String(errors);
           el.classList.add("is-wrong");

@@ -4,6 +4,8 @@
    генерируется заново на каждой такой пробе, а не фиксируется на блок.
    Фиксированное число проб (не таймер), чтобы ответ не обрезался часами. */
 
+import { good, bad } from "../feedback.js";
+
 const COLORS = [
   { name: "красный", hex: "#e53935" },
   { name: "синий", hex: "#1e88e5" },
@@ -72,6 +74,7 @@ export default {
           answered = true;
           const rtMs = performance.now() - shownAt;
           const correct = value === correctAnswer;
+          if (correct) good(); else bad();
           log.push({ isSwitch, correct, rtMs });
           if (keydownHandler) { document.removeEventListener("keydown", keydownHandler); keydownHandler = null; }
           timers.push(setTimeout(nextTrial, PAUSE_MS));

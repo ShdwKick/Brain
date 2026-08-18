@@ -2,6 +2,7 @@
 /* Устный счёт: примеры на время, 60 секунд, три уровня сложности. */
 
 import { getLevel, adjustLevel } from "../difficulty.js";
+import { good, bad } from "../feedback.js";
 
 const LEVELS = ["easy", "medium", "hard"];
 const TIER_LABEL = { easy: "лёгкий", medium: "средний", hard: "сложный" };
@@ -90,10 +91,12 @@ export default {
         total++;
         const val = Number(input.value);
         if (val === current.answer) {
+          good();
           correct++;
           correctEl.textContent = String(correct);
           input.style.color = "#2e7d32";
         } else {
+          bad();
           input.style.color = "var(--md-sys-color-error)";
         }
         nextProblem();

@@ -5,6 +5,7 @@
    Автоподбор здесь — про размер сетки между забегами, не про длину внутри. */
 
 import { getLevel, adjustLevel } from "../difficulty.js";
+import { good, bad } from "../feedback.js";
 
 const LEVELS = [3, 4];
 const LIT_MS = 600;
@@ -22,6 +23,8 @@ export default {
     let timers = [];
     const clearTimers = () => { timers.forEach(clearTimeout); timers = []; };
 
+    let hardMode = false;
+
     function renderIntro() {
       container.innerHTML = `
         <div class="ex-intro">
@@ -32,6 +35,10 @@ export default {
               ${[3, 4].map(v => `<button class="chip" type="button" data-size="${v}" aria-pressed="${v === gridSize}">${v}×${v}</button>`).join("")}
             </div>
           </div>
+          <label class="check-row">
+            <input type="checkbox" id="hardMode" ${hardMode ? "checked" : ""}>
+            <span>Сложный режим: не показывать текущую длину серии</span>
+          </label>
           <button class="btn filled" id="start" type="button">Начать</button>
         </div>`;
       container.querySelectorAll("#sizeGroup .chip").forEach(chip => {
@@ -40,6 +47,7 @@ export default {
           renderIntro();
         });
       });
+      container.querySelector("#hardMode").addEventListener("change", e => { hardMode = e.target.checked; });
       container.querySelector("#start").addEventListener("click", startRun);
     }
 
@@ -76,7 +84,7 @@ export default {
         phase = "showing";
         userIndex = 0;
         sequence = randomSequence(cellCount, length);
-        spanEl.textContent = String(length);
+        spanEl.textContent = hardMode ? "?" : String(length);
         msgEl.textContent = "Смотри внимательно…";
         let i = 0;
         function showNext() {
@@ -101,6 +109,7 @@ export default {
       function onCellClick(i) {
         if (phase !== "input") return;
         if (sequence[userIndex] === i) {
+          good();
           cells[i].classList.add("is-done");
           timers.push(setTimeout(() => cells[i].classList.remove("is-done"), 220));
           userIndex++;
@@ -111,6 +120,7 @@ export default {
             timers.push(setTimeout(playLevel, 500));
           }
         } else {
+          bad();
           cells[i].classList.add("is-wrong");
           phase = "done";
           timers.push(setTimeout(() => finish(), 260));
@@ -127,6 +137,7 @@ export default {
           stats: [
             { value: bestSpan, label: "Максимальная длина" },
             { value: `${gridSize}×${gridSize}`, label: "Сетка" },
+            { value: hardMode ? "Да" : "Нет", label: "Сложный режим" },
           ],
           record: { key: `corsi:${gridSize}`, value: bestSpan, direction: "higher", format: v => `длина ${v}` },
           difficultyNote,

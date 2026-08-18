@@ -4,6 +4,7 @@
    что упражнения ничего не сохраняют между визитами). */
 
 import { getLevel, adjustLevel } from "../difficulty.js";
+import { good, bad } from "../feedback.js";
 
 const WORDS = {
   easy: ["стол", "речка", "город", "лампа", "книга", "сумка", "ветер", "облако"],
@@ -105,8 +106,8 @@ export default {
           answered = true;
           clearInterval(timerId);
           const ok = normalize(input.value) === normalize(word);
-          if (ok) { score++; fb.textContent = "Верно!"; fb.className = "feedback is-good"; }
-          else { fb.textContent = `Не то — было «${word}»`; fb.className = "feedback is-bad"; }
+          if (ok) { good(); score++; fb.textContent = "Верно!"; fb.className = "feedback is-good"; }
+          else { bad(); fb.textContent = `Не то — было «${word}»`; fb.className = "feedback is-bad"; }
           input.disabled = true;
           container.querySelector("#submit").disabled = true;
           advanceTimer = setTimeout(nextWord, 1100);

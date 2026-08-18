@@ -3,6 +3,7 @@
    Символы — буквы (без картинок, ничего лишнего не грузим). */
 
 import { getLevel, adjustLevel } from "../difficulty.js";
+import { good, bad } from "../feedback.js";
 
 const LETTERS = ["А", "Б", "В", "Г", "Д", "Е", "Ж", "З", "И", "К", "Л", "М"];
 const LEVELS = [6, 8, 12];
@@ -91,6 +92,7 @@ export default {
         const a = firstPick, b = i;
         firstPick = null;
         if (cards[a].value === cards[b].value) {
+          good();
           cards[a].matched = true; cards[b].matched = true;
           tileEls[a].classList.add("is-done"); tileEls[a].classList.remove("is-lit");
           tileEls[b].classList.add("is-done"); tileEls[b].classList.remove("is-lit");
@@ -98,6 +100,7 @@ export default {
           matchedPairs++;
           if (matchedPairs >= pairsCount) timers.push(setTimeout(finish, 250));
         } else {
+          bad();
           locked = true;
           timers.push(setTimeout(() => {
             cards[a].revealed = false; cards[b].revealed = false;

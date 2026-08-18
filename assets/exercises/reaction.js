@@ -2,6 +2,8 @@
 /* Reaction time: жди сигнала и жми как можно быстрее. Клик до сигнала —
    фальстарт, попытка переигрывается, а не засчитывается. */
 
+import { good, bad } from "../feedback.js";
+
 const TRIALS = 5;
 
 export default {
@@ -41,12 +43,14 @@ export default {
 
         box.addEventListener("click", () => {
           if (!armed) {
+            bad();
             fb.textContent = "Слишком рано — попытка переигрывается";
             fb.className = "feedback is-bad";
             timers.push(setTimeout(runTrial, 900));
             return;
           }
           const rt = performance.now() - shownAt;
+          good();
           results.push(rt);
           trial++;
           fb.textContent = `${Math.round(rt)} мс`;

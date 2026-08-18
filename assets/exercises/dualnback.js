@@ -5,6 +5,7 @@
    текстом, а не на слух, как в классическом варианте. */
 
 import { getLevel, adjustLevel } from "../difficulty.js";
+import { good, bad } from "../feedback.js";
 
 const LETTERS = ["Б", "В", "Г", "Д", "Ж", "К", "Л", "М", "Н", "П", "Р", "С"];
 const LEVELS = [1, 2];
@@ -94,11 +95,11 @@ export default {
         if (kind === "pos") {
           if (posResponded) return;
           posResponded = true;
-          if (idx >= n && positions[idx] === positions[idx - n]) posHits++; else posFalse++;
+          if (idx >= n && positions[idx] === positions[idx - n]) { good(); posHits++; } else { bad(); posFalse++; }
         } else {
           if (letResponded) return;
           letResponded = true;
-          if (idx >= n && letters[idx] === letters[idx - n]) letHits++; else letFalse++;
+          if (idx >= n && letters[idx] === letters[idx - n]) { good(); letHits++; } else { bad(); letFalse++; }
         }
       }
 

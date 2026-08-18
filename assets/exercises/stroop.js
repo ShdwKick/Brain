@@ -3,6 +3,8 @@
    (не подписи цветом — иначе кнопки сами станут вторым струп-эффектом),
    раунд 60 секунд. */
 
+import { good, bad } from "../feedback.js";
+
 const COLORS = [
   { name: "красный", hex: "#e53935" },
   { name: "синий", hex: "#1e88e5" },
@@ -68,8 +70,10 @@ export default {
       function answer(name) {
         if (!current) return;
         if (name === current.name) {
+          good();
           correct++; streak++; bestStreak = Math.max(bestStreak, streak);
         } else {
+          bad();
           incorrect++; streak = 0;
         }
         correctEl.textContent = String(correct);

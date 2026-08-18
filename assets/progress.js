@@ -29,6 +29,11 @@ export function getBest(key) {
   return readAll()[key] || null;
 }
 
+/** Все записи разом — для сводной страницы статистики по всем упражнениям. */
+export function getAllRecords() {
+  return readAll();
+}
+
 export function timesLabel(n) {
   const mod10 = n % 10, mod100 = n % 100;
   if (mod100 >= 11 && mod100 <= 14) return `${n} раз`;

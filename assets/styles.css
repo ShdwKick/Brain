@@ -116,6 +116,11 @@ body{
   display:flex;align-items:center;justify-content:space-between;
   max-width:960px;margin:0 auto;padding:20px 20px 0;
 }
+/* Кнопки справа — в одной группе, а не прямыми детьми .topbar: иначе
+   justify-content:space-between равномерно раскидывает все три ребёнка
+   (лого / установить / тема), и "установить" при появлении уезжает
+   на середину шапки вместо места рядом с переключателем темы. */
+.topbar-actions{display:flex;align-items:center;gap:4px}
 .icon-btn{
   width:44px;height:44px;border-radius:var(--r-full);
   border:0;background:transparent;color:var(--md-sys-color-on-surface-variant);
@@ -124,6 +129,8 @@ body{
 .icon-btn::after{content:"";position:absolute;inset:0;background:currentColor;opacity:0;transition:opacity .2s}
 .icon-btn:hover::after{opacity:.08}
 .icon-btn:active::after{opacity:.12}
+.icon-btn.is-active{color:var(--flame-tip)}
+.icon-btn.is-active::after{opacity:.12}
 .icon{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
 .is-hidden{display:none !important}
 
@@ -134,7 +141,7 @@ body{
 }
 .hero h1{font-size:clamp(28px,4vw,38px);font-weight:650;letter-spacing:-.01em}
 .hero p{margin-top:10px;font-size:15px;color:var(--md-sys-color-on-surface-variant);max-width:48ch;margin-inline:auto}
-.hero .btn{margin-top:22px}
+.hero-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:22px}
 
 /* ===================== ОСНОВНАЯ ОБЛАСТЬ ===================== */
 #view{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:0 20px 72px}
@@ -189,6 +196,13 @@ body{
   border:1px solid var(--md-sys-color-outline-variant);
   box-shadow:var(--e1);
 }
+
+/* Страница «Моя статистика»: та же карточка-сцена, но список слева направо,
+   а не центрированный сценарий одной игры. */
+.ex-stage--stats{align-items:stretch;text-align:left;display:block;padding:24px}
+.stats-row + .stats-row{margin-top:26px;padding-top:22px;border-top:1px solid var(--md-sys-color-outline-variant)}
+.stats-row h3{font-size:16px;font-weight:650;margin-bottom:12px}
+.stats-row .stat-row{justify-content:flex-start}
 
 .ex-intro{display:flex;flex-direction:column;align-items:center;gap:18px;max-width:52ch}
 .ex-intro p{font-size:14.5px;line-height:1.6;color:var(--md-sys-color-on-surface-variant)}
@@ -247,15 +261,20 @@ body{
 .tile{
   all:unset;box-sizing:border-box;cursor:pointer;aspect-ratio:1;
   display:grid;place-items:center;border-radius:var(--r-m);
-  background:var(--md-sys-color-surface-container);
-  font-size:clamp(14px,3.4vw,20px);font-weight:650;font-variant-numeric:tabular-nums;
-  border:1px solid var(--md-sys-color-outline-variant);
+  background:var(--md-sys-color-surface-container-high);
+  font-size:clamp(17px,4.4vw,26px);font-weight:700;font-variant-numeric:tabular-nums;
+  border:1px solid var(--md-sys-color-outline);
+  box-shadow:var(--e1);
   transition:background .12s,transform .12s,border-color .12s;
   user-select:none;-webkit-user-select:none;
 }
 .tile:hover{border-color:var(--md-sys-color-outline)}
 .tile:active{transform:scale(.94)}
 .tile.is-done{background:var(--md-sys-color-secondary-container);color:var(--md-sys-color-on-secondary-container)}
+.tile.is-done.is-fading{
+  background:var(--md-sys-color-surface-container-high);color:var(--md-sys-color-on-surface);
+  transition:background .8s ease, color .8s ease;
+}
 .tile.is-lit{background:color-mix(in srgb, var(--flame-tip) 55%, var(--md-sys-color-surface-container));border-color:transparent}
 .tile.is-wrong{background:var(--md-sys-color-error-container);color:var(--md-sys-color-on-error-container)}
 .tile.is-active{outline:2px solid var(--md-sys-color-primary);outline-offset:2px}
@@ -268,10 +287,10 @@ body{
 }
 .swatch:hover{transform:translateY(-2px)}
 .swatch:active{transform:translateY(0) scale(.96)}
-.stroop-word{font-size:38px;font-weight:700;letter-spacing:.01em}
+.stroop-word{font-size:44px;font-weight:700;letter-spacing:.01em}
 
 /* Анаграммы */
-.scramble-word{font-size:34px;font-weight:700;letter-spacing:.14em;font-variant-numeric:tabular-nums}
+.scramble-word{font-size:38px;font-weight:700;letter-spacing:.14em;font-variant-numeric:tabular-nums}
 .ex-form{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 .ex-input{
   height:44px;padding:0 16px;border-radius:var(--r-full);
@@ -290,7 +309,12 @@ body{
 .hanoi-board{display:flex;gap:22px;align-items:flex-end;justify-content:center;width:100%;padding-top:10px}
 .hanoi-peg{
   all:unset;cursor:pointer;position:relative;flex:1;max-width:9rem;
-  display:flex;flex-direction:column;align-items:center;gap:6px;
+  display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px;
+  /* Зона стержня — на всю высоту самой высокой возможной башни (6 дисков), а
+     не по фактическому числу дисков: иначе на пустой/невысокий стержень
+     приходится попадать точно в узкую полоску у основания, что при
+     перетаскивании неудобно и на телефоне, и мышью. */
+  min-height:220px;
   padding:0 0 14px;border-radius:var(--r-s);
 }
 .hanoi-peg::before{
@@ -331,7 +355,7 @@ body{
 /* Переключение правил */
 .switch-cue{font-size:15px;font-weight:650;color:var(--md-sys-color-on-surface-variant);text-transform:uppercase;letter-spacing:.03em}
 .switch-stimulus{display:grid;place-items:center;width:8rem;height:8rem;border-radius:var(--r-l)}
-.switch-stimulus .n{font-size:44px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.25)}
+.switch-stimulus .n{font-size:52px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.25)}
 .switch-answers{display:flex;gap:14px}
 
 /* Trail Making: узлы разбросаны случайно по площадке, линия рисуется поверх
@@ -369,7 +393,11 @@ body{
 .reaction-box.is-go{background:#2e7d32;color:#fff}
 
 /* Устный счёт */
-.math-expr{font-size:38px;font-weight:700;font-variant-numeric:tabular-nums}
+.math-expr{font-size:44px;font-weight:700;font-variant-numeric:tabular-nums}
+
+/* Чекбокс-переключатель в интро упражнения (сложный режим Шульте и т.п.) */
+.check-row{display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--md-sys-color-on-surface-variant);cursor:pointer;user-select:none}
+.check-row input{width:18px;height:18px;accent-color:var(--md-sys-color-primary);cursor:pointer}
 
 /* ===================== ФУТЕР ===================== */
 .foot{

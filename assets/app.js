@@ -9,7 +9,8 @@
  * EXERCISES, сами упражнения грузятся динамическим import() по мере
  * открытия (см. Design/README.md про отсутствие авторизации здесь).
  */
-import { recordBest, getBest, timesLabel } from "./progress.js";
+import { recordBest, getBest, getAllRecords, timesLabel } from "./progress.js";
+import { isSoundOn, setSoundOn } from "./feedback.js";
 
 const $ = id => document.getElementById(id);
 const view = $("view");
@@ -32,6 +33,37 @@ $("themeBtn").addEventListener("click", () => {
   const next = currentTheme() === "dark" ? "light" : "dark";
   localStorage.setItem(THEME_KEY, next);
   applyTheme(next);
+});
+
+/* ---------- звук: по умолчанию выключен, тумблер запоминает выбор ---------- */
+
+const soundOnIcon = `<svg class="icon" viewBox="0 0 24 24"><path d="M4 9v6h4l5 5V4L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a9 9 0 0 1 0 12"/></svg>`;
+const soundOffIcon = `<svg class="icon" viewBox="0 0 24 24"><path d="M4 9v6h4l5 5V4L8 9H4z"/><path d="M16 9l5 6M21 9l-5 6"/></svg>`;
+function applySoundIcon() {
+  $("soundBtn").innerHTML = isSoundOn() ? soundOnIcon : soundOffIcon;
+  $("soundBtn").title = isSoundOn() ? "Выключить звук" : "Включить звук";
+}
+applySoundIcon();
+$("soundBtn").addEventListener("click", () => {
+  setSoundOn(!isSoundOn());
+  applySoundIcon();
+});
+
+/* ---------- тихий фон: та же анимация, но приглушённая (см. Shared/brand.css
+   .bh-backdrop--quiet) — не про вестибулярную чувствительность (для этого
+   есть prefers-reduced-motion), а про то, что фон иногда просто отвлекает. */
+
+const QUIET_KEY = "bh-quiet";
+function isQuiet() { return localStorage.getItem(QUIET_KEY) === "1"; }
+function applyQuiet(on) {
+  $("backdrop").classList.toggle("bh-backdrop--quiet", on);
+  $("quietBtn").classList.toggle("is-active", on);
+}
+applyQuiet(isQuiet());
+$("quietBtn").addEventListener("click", () => {
+  const next = !isQuiet();
+  localStorage.setItem(QUIET_KEY, next ? "1" : "0");
+  applyQuiet(next);
 });
 
 /* ---------- PWA: офлайн-кэш и установка на экран ---------- */
@@ -62,27 +94,31 @@ window.addEventListener("appinstalled", () => {
 
 /* ---------- реестр упражнений ---------- */
 
+const TIER_LABEL = { easy: "лёгкий", medium: "средний", hard: "сложный" };
+const CATEGORY_LABEL = { animals: "Животные", fruits: "Фрукты и овощи", countries: "Страны", professions: "Профессии" };
+
 const EXERCISES = [
   { id: "nback", domain: "Рабочая память", name: "N-back",
     teaser: "Жми, когда текущая буква совпадает с той, что была N шагов назад.",
     load: () => import("./exercises/nback.js"),
-    badgeKey: "nback:2", badgeFormat: v => `${v}%` },
+    badgeKey: "nback:2", badgeFormat: v => `${v}%`, parseKey: s => `N=${s}` },
   { id: "dualnback", domain: "Рабочая память", name: "Dual n-back",
     teaser: "Позиция и буква одновременно — две независимые реакции.",
     load: () => import("./exercises/dualnback.js"),
-    badgeKey: "dualnback:2", badgeFormat: v => `${v}%` },
+    badgeKey: "dualnback:2", badgeFormat: v => `${v}%`, parseKey: s => `N=${s}` },
   { id: "corsi", domain: "Рабочая память", name: "Corsi tapping",
     teaser: "Повтори мигающую последовательность блоков на сетке.",
     load: () => import("./exercises/corsi.js"),
-    badgeKey: "corsi:3", badgeFormat: v => `длина ${v}` },
+    badgeKey: "corsi:3", badgeFormat: v => `длина ${v}`, parseKey: s => `${s}×${s}` },
   { id: "pairs", domain: "Рабочая память", name: "Парная память",
     teaser: "Найди все пары карточек за минимум попыток.",
     load: () => import("./exercises/pairs.js"),
-    badgeKey: "pairs:8", badgeFormat: v => `${v} попыток` },
+    badgeKey: "pairs:8", badgeFormat: v => `${v} попыток`, parseKey: s => `${s} пар` },
   { id: "schulte", domain: "Внимание и скорость", name: "Таблицы Шульте",
     teaser: "Найди числа по порядку как можно быстрее.",
     load: () => import("./exercises/schulte.js"),
-    badgeKey: "schulte:4", badgeFormat: v => `${v.toFixed(1)} с` },
+    badgeKey: "schulte:4", badgeFormat: v => `${v.toFixed(1)} с`,
+    parseKey: s => { const [size, hard] = s.split(":"); return `${size}×${size}${hard ? " (сложный)" : ""}`; } },
   { id: "stroop", domain: "Внимание и скорость", name: "Струп-тест",
     teaser: "Назови цвет чернил, а не то, что написано словом.",
     load: () => import("./exercises/stroop.js"),
@@ -90,7 +126,7 @@ const EXERCISES = [
   { id: "trail", domain: "Внимание и скорость", name: "Trail Making",
     teaser: "Соединяй числа и буквы по очереди: 1, А, 2, Б, 3, В...",
     load: () => import("./exercises/trail.js"),
-    badgeKey: "trail:8", badgeFormat: v => `${v.toFixed(1)} с` },
+    badgeKey: "trail:8", badgeFormat: v => `${v.toFixed(1)} с`, parseKey: s => `${s} пар` },
   { id: "reaction", domain: "Внимание и скорость", name: "Скорость реакции",
     teaser: "Жди сигнала и жми как можно быстрее.",
     load: () => import("./exercises/reaction.js"),
@@ -106,11 +142,11 @@ const EXERCISES = [
   { id: "anagrams", domain: "Вербальные навыки", name: "Анаграммы",
     teaser: "Собери слово из перемешанных букв на время.",
     load: () => import("./exercises/anagrams.js"),
-    badgeKey: "anagrams:medium", badgeFormat: v => `${v}/8` },
+    badgeKey: "anagrams:medium", badgeFormat: v => `${v}/8`, parseKey: s => TIER_LABEL[s] || s },
   { id: "categories", domain: "Вербальные навыки", name: "Категории на скорость",
     teaser: "Назови как можно больше слов из категории за 45 секунд.",
     load: () => import("./exercises/categories.js"),
-    badgeKey: null, badgeFormat: null },
+    badgeKey: null, badgeFormat: v => `${v} слов`, parseKey: s => CATEGORY_LABEL[s] || s },
   { id: "switching", domain: "Когнитивная гибкость", name: "Переключение правил",
     teaser: "Правило меняется без предупреждения — успевай подстроиться.",
     load: () => import("./exercises/switching.js"),
@@ -118,7 +154,7 @@ const EXERCISES = [
   { id: "mathsprint", domain: "Числовая беглость", name: "Устный счёт",
     teaser: "Решай примеры на скорость — 60 секунд на как можно больше.",
     load: () => import("./exercises/mathsprint.js"),
-    badgeKey: "mathsprint:medium", badgeFormat: v => `${v} задач` },
+    badgeKey: "mathsprint:medium", badgeFormat: v => `${v} задач`, parseKey: s => TIER_LABEL[s] || s },
 ];
 const byId = new Map(EXERCISES.map(e => [e.id, e]));
 
@@ -196,7 +232,10 @@ function renderHub() {
       <h1>Пораскинем мозгами?</h1>
       <p>${EXERCISES.length} коротких упражнений на память, внимание, счёт и
         гибкость мышления. Без входа, без сохранения аккаунта — открой и играй.</p>
-      <button class="btn filled" id="randomBtn" type="button">Случайное упражнение</button>
+      <div class="hero-actions">
+        <button class="btn filled" id="randomBtn" type="button">Случайное упражнение</button>
+        <button class="btn outlined" id="statsBtn" type="button">Моя статистика</button>
+      </div>
     </header>
     ${[...groups.entries()].map(([domain, items], gi) => `
       <section class="domain-group">
@@ -225,6 +264,49 @@ function renderHub() {
     const pick = EXERCISES[Math.floor(Math.random() * EXERCISES.length)];
     location.hash = "#/" + pick.id;
   });
+  $("statsBtn").addEventListener("click", () => { location.hash = "#/stats"; });
+}
+
+function renderStats() {
+  teardown();
+  const all = getAllRecords();
+  const rows = EXERCISES.map(ex => {
+    const prefix = ex.id + ":";
+    const entries = Object.entries(all)
+      .filter(([k]) => k === ex.id || k.startsWith(prefix))
+      .map(([k, v]) => ({
+        label: k === ex.id ? null : (ex.parseKey ? ex.parseKey(k.slice(prefix.length)) : k.slice(prefix.length)),
+        value: ex.badgeFormat ? ex.badgeFormat(v.value) : v.value,
+        plays: v.plays,
+      }));
+    return { ex, entries };
+  }).filter(r => r.entries.length);
+
+  view.innerHTML = `
+    <div class="ex-header">
+      <button class="back-btn" id="statsBack" type="button" aria-label="Все упражнения">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="titles">
+        <h1>Моя статистика</h1>
+        <p class="domain-tag">Личные рекорды по всем упражнениям</p>
+      </div>
+    </div>
+    <div class="ex-stage ex-stage--stats">
+      ${rows.length ? rows.map(r => `
+        <div class="stats-row">
+          <h3>${r.ex.name}</h3>
+          <div class="stat-row">
+            ${r.entries.map(e => `
+              <div class="stat">
+                <span class="v">${e.value}</span>
+                <span class="l">${e.label ? e.label + " · " : ""}${timesLabel(e.plays)}</span>
+              </div>`).join("")}
+          </div>
+        </div>`).join("") : `<p class="feedback">Пока пусто — сыграй хотя бы раз в любое упражнение, и здесь появится статистика.</p>`}
+    </div>
+  `;
+  $("statsBack").addEventListener("click", () => { location.hash = "#/"; });
 }
 
 async function renderExercise(id) {
@@ -261,6 +343,7 @@ async function renderExercise(id) {
 function route() {
   const hash = location.hash.replace(/^#\/?/, "");
   if (!hash) renderHub();
+  else if (hash === "stats") renderStats();
   else renderExercise(hash);
 }
 

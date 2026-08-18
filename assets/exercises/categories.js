@@ -3,6 +3,8 @@
    секунд. Проверка — по курируемому списку (как у анаграмм): без него
    пришлось бы верить на слово, а с полным словарём это отдельный сервис. */
 
+import { good, bad } from "../feedback.js";
+
 const CATEGORIES = {
   animals: { label: "Животные", words: ["кот", "собака", "лошадь", "корова", "волк", "лиса", "медведь", "заяц", "белка", "олень", "тигр", "лев", "слон", "жираф", "обезьяна", "кит", "дельфин", "орёл", "сова", "змея"] },
   fruits: { label: "Фрукты и овощи", words: ["яблоко", "груша", "банан", "апельсин", "лимон", "виноград", "слива", "персик", "арбуз", "дыня", "морковь", "картофель", "огурец", "помидор", "капуста", "лук", "свёкла", "тыква", "перец", "редис"] },
@@ -62,13 +64,16 @@ export default {
         if (!raw.trim()) return;
         const norm = normalize(raw);
         if (found.has(norm)) {
+          bad();
           fb.textContent = "Уже называли"; fb.className = "feedback is-bad";
           return;
         }
         if (!normList.has(norm)) {
+          bad();
           fb.textContent = "Нет в списке для этой категории"; fb.className = "feedback is-bad";
           return;
         }
+        good();
         found.add(norm);
         scoreEl.textContent = String(found.size);
         fb.textContent = ""; fb.className = "feedback";

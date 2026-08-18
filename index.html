@@ -22,7 +22,7 @@
      в Shared/brand.css. Луч, гуляющий по комнате слева направо, заменён на
      волну импульса от очага (bh-sweep--pulse, локально в assets/styles.css) —
      это уже не свет, идущий мимо, а сигнал, расходящийся наружу. -->
-<div class="bh-backdrop bh-backdrop--page" aria-hidden="true">
+<div class="bh-backdrop bh-backdrop--page" id="backdrop" aria-hidden="true">
   <div class="bh-layer"><div class="bh-glow"></div></div>
   <div class="bh-layer"><div class="bh-sweep bh-sweep--pulse"></div></div>
   <div class="bh-layer"><div class="bh-haze"></div></div>
@@ -45,10 +45,16 @@
     <span class="bh-sep" aria-hidden="true"></span>
     <span class="bh-service">Пораскинем мозгами?</span>
   </a>
-  <button class="icon-btn is-hidden" id="installBtn" type="button" title="Установить" aria-label="Установить">
-    <svg class="icon" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-5-5m5 5l5-5M5 19h14"/></svg>
-  </button>
-  <button class="icon-btn" id="themeBtn" type="button" title="Сменить тему" aria-label="Сменить тему"></button>
+  <div class="topbar-actions">
+    <button class="icon-btn is-hidden" id="installBtn" type="button" title="Установить" aria-label="Установить">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-5-5m5 5l5-5M5 19h14"/></svg>
+    </button>
+    <button class="icon-btn" id="quietBtn" type="button" title="Приглушить фон" aria-label="Приглушить фон">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+    </button>
+    <button class="icon-btn" id="soundBtn" type="button" title="Звук" aria-label="Звук"></button>
+    <button class="icon-btn" id="themeBtn" type="button" title="Сменить тему" aria-label="Сменить тему"></button>
+  </div>
 </div>
 
 <main id="view" aria-live="polite"></main>

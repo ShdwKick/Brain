@@ -5,6 +5,7 @@
 
 import { getBest } from "../progress.js";
 import { getLevel, adjustLevel } from "../difficulty.js";
+import { good, bad } from "../feedback.js";
 
 const LEVELS = [3, 4, 5, 6];
 
@@ -22,8 +23,10 @@ export default {
     let size = getLevel("schulte", LEVELS, 4);
     let timerId = null;
 
+    let hardMode = false;
+
     function renderIntro() {
-      const best = getBest(`schulte:${size}`);
+      const best = getBest(hardMode ? `schulte:${size}:hard` : `schulte:${size}`);
       container.innerHTML = `
         <div class="ex-intro">
           <p>Кликай по числам по порядку — от 1 до последнего — как можно быстрее.
@@ -33,7 +36,11 @@ export default {
               ${[3, 4, 5, 6].map(v => `<button class="chip" type="button" data-size="${v}" aria-pressed="${v === size}">${v}×${v}</button>`).join("")}
             </div>
           </div>
-          ${best ? `<p class="feedback">Личный рекорд на ${size}×${size}: ${best.value.toFixed(1)} с</p>` : ""}
+          <label class="check-row">
+            <input type="checkbox" id="hardMode" ${hardMode ? "checked" : ""}>
+            <span>Сложный режим: подсветка найденной клетки гаснет через секунду</span>
+          </label>
+          ${best ? `<p class="feedback">Личный рекорд на ${size}×${size}${hardMode ? " (сложный режим)" : ""}: ${best.value.toFixed(1)} с</p>` : ""}
           <button class="btn filled" id="start" type="button">Начать</button>
         </div>`;
       container.querySelectorAll("#sizeGroup .chip").forEach(chip => {
@@ -41,6 +48,10 @@ export default {
           size = Number(chip.dataset.size);
           renderIntro();
         });
+      });
+      container.querySelector("#hardMode").addEventListener("change", e => {
+        hardMode = e.target.checked;
+        renderIntro();
       });
       container.querySelector("#start").addEventListener("click", startRound);
     }
@@ -78,12 +89,15 @@ export default {
 
       function onTileClick(tile, num) {
         if (num === next) {
+          good();
           tile.classList.add("is-done");
           tile.disabled = true;
           next++;
+          if (hardMode) setTimeout(() => tile.classList.add("is-fading"), 550);
           if (next > total) { finish(startedAt); return; }
           targetEl.textContent = String(next);
         } else {
+          bad();
           tile.classList.add("is-wrong");
           setTimeout(() => tile.classList.remove("is-wrong"), 220);
         }
@@ -94,17 +108,23 @@ export default {
         timerId = null;
         const elapsed = (performance.now() - startedAt) / 1000;
         const timePerCell = elapsed / total;
-        const outcome = timePerCell < 1.0 ? "up" : timePerCell > 2.5 ? "down" : "stay";
-        const adjusted = adjustLevel("schulte", LEVELS, size, outcome);
-        const difficultyNote = adjusted.direction === "up" ? `Быстро прошёл — в следующий раз предложим ${adjusted.next}×${adjusted.next}`
-          : adjusted.direction === "down" ? `Пока сложновато — в следующий раз предложим ${adjusted.next}×${adjusted.next}` : null;
+        // Автоподбор сложности рассчитан на обычный режим — в сложном
+        // память и так под нагрузкой, а время закономерно больше.
+        let difficultyNote = null;
+        if (!hardMode) {
+          const outcome = timePerCell < 1.0 ? "up" : timePerCell > 2.5 ? "down" : "stay";
+          const adjusted = adjustLevel("schulte", LEVELS, size, outcome);
+          difficultyNote = adjusted.direction === "up" ? `Быстро прошёл — в следующий раз предложим ${adjusted.next}×${adjusted.next}`
+            : adjusted.direction === "down" ? `Пока сложновато — в следующий раз предложим ${adjusted.next}×${adjusted.next}` : null;
+        }
         api.showResult(container, {
           headline: "Готово!",
           stats: [
             { value: `${elapsed.toFixed(1)} с`, label: "Время" },
             { value: `${size}×${size}`, label: "Сетка" },
+            { value: hardMode ? "Да" : "Нет", label: "Сложный режим" },
           ],
-          record: { key: `schulte:${size}`, value: elapsed, direction: "lower", format: v => `${v.toFixed(1)} с` },
+          record: { key: hardMode ? `schulte:${size}:hard` : `schulte:${size}`, value: elapsed, direction: "lower", format: v => `${v.toFixed(1)} с` },
           difficultyNote,
           onRestart: renderIntro,
         });
