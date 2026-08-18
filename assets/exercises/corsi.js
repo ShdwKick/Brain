@@ -1,8 +1,12 @@
 "use strict";
 /* Corsi tapping: сетка выбирается один раз в idle и не меняется в течение
    забега — позиции блоков должны быть неизменны, иначе тест перестаёт
-   измерять пространственную память. Растёт только длина последовательности. */
+   измерять пространственную память. Растёт только длина последовательности.
+   Автоподбор здесь — про размер сетки между забегами, не про длину внутри. */
 
+import { getLevel, adjustLevel } from "../difficulty.js";
+
+const LEVELS = [3, 4];
 const LIT_MS = 600;
 const GAP_MS = 260;
 
@@ -14,7 +18,7 @@ function randomSequence(cellCount, length) {
 
 export default {
   mount(container, api) {
-    let gridSize = 3;
+    let gridSize = getLevel("corsi", LEVELS, 3);
     let timers = [];
     const clearTimers = () => { timers.forEach(clearTimeout); timers = []; };
 
@@ -114,12 +118,18 @@ export default {
       }
 
       function finish() {
+        const outcome = gridSize === 3 && bestSpan >= 6 ? "up" : gridSize === 4 && bestSpan <= 3 ? "down" : "stay";
+        const { direction, next } = adjustLevel("corsi", LEVELS, gridSize, outcome);
+        const difficultyNote = direction === "up" ? `Длинная серия — в следующий раз предложим сетку ${next}×${next}`
+          : direction === "down" ? `Пока сложновато — в следующий раз предложим сетку ${next}×${next}` : null;
         api.showResult(container, {
           headline: "Забег завершён",
           stats: [
             { value: bestSpan, label: "Максимальная длина" },
             { value: `${gridSize}×${gridSize}`, label: "Сетка" },
           ],
+          record: { key: `corsi:${gridSize}`, value: bestSpan, direction: "higher", format: v => `длина ${v}` },
+          difficultyNote,
           onRestart: renderIntro,
         });
       }

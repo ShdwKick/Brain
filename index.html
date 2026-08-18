@@ -5,8 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
 <title>Пораскинем мозгами? — BurningHouse</title>
-<meta name="description" content="Восемь коротких упражнений на память, внимание и гибкость мышления. Без регистрации, без сохранения — просто разминка.">
+<meta name="description" content="Четырнадцать коротких упражнений на память, внимание, счёт и гибкость мышления. Без регистрации — просто разминка.">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+<link rel="manifest" href="assets/manifest.webmanifest">
+<meta name="theme-color" content="#120a13">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400;8..144,500;8..144,600;8..144,700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/brand.css">
@@ -16,10 +19,12 @@
 
 <!-- Горящий дом за интерфейсом. Вариант «Очаг» + своя повадка искр (нейроны
      срабатывают на месте, а не летят) — см. Design/motion.md и bh-sparks--flicker
-     в Shared/brand.css. -->
+     в Shared/brand.css. Луч, гуляющий по комнате слева направо, заменён на
+     волну импульса от очага (bh-sweep--pulse, локально в assets/styles.css) —
+     это уже не свет, идущий мимо, а сигнал, расходящийся наружу. -->
 <div class="bh-backdrop bh-backdrop--page" aria-hidden="true">
   <div class="bh-layer"><div class="bh-glow"></div></div>
-  <div class="bh-layer"><div class="bh-sweep"></div></div>
+  <div class="bh-layer"><div class="bh-sweep bh-sweep--pulse"></div></div>
   <div class="bh-layer"><div class="bh-haze"></div></div>
   <div class="bh-layer bh-sparks bh-sparks--flicker" data-bh-sparks="10"></div>
 </div>
@@ -40,6 +45,9 @@
     <span class="bh-sep" aria-hidden="true"></span>
     <span class="bh-service">Пораскинем мозгами?</span>
   </a>
+  <button class="icon-btn is-hidden" id="installBtn" type="button" title="Установить" aria-label="Установить">
+    <svg class="icon" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-5-5m5 5l5-5M5 19h14"/></svg>
+  </button>
   <button class="icon-btn" id="themeBtn" type="button" title="Сменить тему" aria-label="Сменить тему"></button>
 </div>
 

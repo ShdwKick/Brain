@@ -15,6 +15,12 @@ const HOST = process.env.HOST || "0.0.0.0";
 const PORT = Number(process.env.PORT) || 8795;
 const ROOT = __dirname;
 
+// sw.js обязан лежать в корне и отдаваться с корня: scope service worker'а по
+// умолчанию — каталог, откуда он загружен, а офлайн нужен всей странице ("/"),
+// не только assets/. Единственный root-файл вне index.html, поэтому свой
+// белый список, как ROOT_VERIFICATION_FILES у Home.
+const ROOT_ASSETS = ["sw.js"];
+
 const TYPES = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
@@ -25,6 +31,7 @@ const TYPES = {
   ".jpeg": "image/jpeg",
   ".webp": "image/webp",
   ".ico": "image/x-icon",
+  ".webmanifest": "application/manifest+json; charset=utf-8",
 };
 
 const server = http.createServer((req, res) => {
@@ -42,7 +49,7 @@ const server = http.createServer((req, res) => {
   // содержимое assets/ — этого достаточно для всей страницы (упражнения
   // переключаются на клиенте через #-роутер, до сервера хэш не долетает).
   const rel = pathname === "/" ? "index.html" : pathname.replace(/^\//, "");
-  if (rel !== "index.html" && !rel.startsWith("assets/")) {
+  if (rel !== "index.html" && !rel.startsWith("assets/") && !ROOT_ASSETS.includes(rel)) {
     res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" }).end("Not Found");
     return;
   }
@@ -54,13 +61,15 @@ const server = http.createServer((req, res) => {
       return;
     }
     const ext = path.extname(filePath).toLowerCase();
-    const isHtml = ext === ".html";
+    // index.html и sw.js — всегда свежие: на первом завязана вся страница,
+    // второй браузер обязан перепроверять при каждой навигации, иначе
+    // обновления тренажёра просто не долетят до уже установленного PWA.
+    const noCache = ext === ".html" || rel === "sw.js";
     res.writeHead(200, {
       "Content-Type": TYPES[ext] || "application/octet-stream",
-      // index.html — всегда свежий, на нём завязана вся страница. Файлы в
-      // assets/ не хэшируются по содержимому, поэтому кэшируем ненадолго —
-      // разгружает сервер, но не держит старую версию сутками после деплоя.
-      "Cache-Control": isHtml ? "no-cache" : "public, max-age=300",
+      // Файлы в assets/ не хэшируются по содержимому, поэтому кэшируем
+      // ненадолго — разгружает сервер, но не держит старую версию сутками.
+      "Cache-Control": noCache ? "no-cache" : "public, max-age=300",
     });
     res.end(isHead ? undefined : data);
   });

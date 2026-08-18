@@ -1,9 +1,14 @@
 "use strict";
 /* Мысленное вращение фигур: курируемый пул заранее проверенных асимметричных
-   фигур (шесть хиральных пентамино + два тетрамино) — НЕ процедурная
+   фигур (шесть хиральных пентамино + одно тетрамино) — НЕ процедурная
    генерация. У асимметричной фигуры зеркальное отражение никогда не
    совпадает ни с одним из её поворотов, поэтому ловушка гарантированно
-   неверна, а не может случайно оказаться правильным ответом. */
+   неверна, а не может случайно оказаться правильным ответом.
+
+   T-образную фигуру сюда нарочно не берём: у неё есть ось зеркальной
+   симметрии, из-за чего "зеркальный" вариант на деле совпадает с одним из
+   настоящих поворотов — в вариантах ответа появляются визуально одинаковые
+   фигуры, что и было замечено при игре. */
 
 const SHAPES = [
   [[1, 0], [2, 0], [0, 1], [1, 1], [1, 2]],           // F
@@ -13,7 +18,6 @@ const SHAPES = [
   [[1, 0], [0, 1], [1, 1], [1, 2], [1, 3]],           // Y
   [[0, 0], [1, 0], [1, 1], [1, 2], [2, 2]],           // Z
   [[1, 0], [1, 1], [0, 2], [1, 2]],                    // J (тетрамино)
-  [[0, 0], [0, 1], [1, 1], [0, 2]],                    // мини-хвост
 ];
 const ROUNDS = 8;
 
@@ -43,6 +47,9 @@ function pick(arr, k) {
 
 export default {
   mount(container, api) {
+    let timers = [];
+    const clearTimers = () => { timers.forEach(clearTimeout); timers = []; };
+
     function renderIntro() {
       container.innerHTML = `
         <div class="ex-intro">
@@ -117,10 +124,10 @@ export default {
         });
         container.querySelector("#check").disabled = true;
 
-        setTimeout(() => {
+        timers.push(setTimeout(() => {
           if (round >= ROUNDS) finish();
           else playRound();
-        }, 900);
+        }, 900));
       }
 
       function finish() {
@@ -131,6 +138,7 @@ export default {
             { value: scoreCorrectPicks, label: "Верных выборов" },
             { value: scoreWrongPicks, label: "Неверных выборов" },
           ],
+          record: { key: "rotation", value: roundsFullyCorrect, direction: "higher", format: v => `${v}/${ROUNDS}` },
           onRestart: renderIntro,
         });
       }
@@ -139,6 +147,6 @@ export default {
     }
 
     renderIntro();
-    return () => {};
+    return () => { clearTimers(); };
   },
 };

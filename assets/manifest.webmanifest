@@ -1,0 +1,17 @@
+{
+  "name": "Пораскинем мозгами? — BurningHouse",
+  "short_name": "Пораскинем мозгами?",
+  "description": "Короткие упражнения на память, внимание, счёт и гибкость мышления. Без входа.",
+  "lang": "ru",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#120a13",
+  "theme_color": "#120a13",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

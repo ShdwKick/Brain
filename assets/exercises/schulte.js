@@ -1,9 +1,12 @@
 "use strict";
 /* Таблицы Шульте: клик по числам 1..size^2 по порядку на время, без штрафа
-   за неверный клик. "Лучшее время за сессию" — в памяти модуля (см.
-   Design/README.md: сервис ничего не сохраняет между визитами). */
+   за неверный клик. Личный рекорд по каждому размеру сетки — через
+   assets/progress.js (переживает перезагрузку страницы). */
 
-const bestTimes = {}; // живёт, пока открыта вкладка — сбрасывается на перезагрузке
+import { getBest } from "../progress.js";
+import { getLevel, adjustLevel } from "../difficulty.js";
+
+const LEVELS = [3, 4, 5, 6];
 
 function shuffled(n) {
   const arr = Array.from({ length: n }, (_, i) => i + 1);
@@ -16,11 +19,11 @@ function shuffled(n) {
 
 export default {
   mount(container, api) {
-    let size = 4;
+    let size = getLevel("schulte", LEVELS, 4);
     let timerId = null;
 
     function renderIntro() {
-      const best = bestTimes[size];
+      const best = getBest(`schulte:${size}`);
       container.innerHTML = `
         <div class="ex-intro">
           <p>Кликай по числам по порядку — от 1 до последнего — как можно быстрее.
@@ -30,7 +33,7 @@ export default {
               ${[3, 4, 5, 6].map(v => `<button class="chip" type="button" data-size="${v}" aria-pressed="${v === size}">${v}×${v}</button>`).join("")}
             </div>
           </div>
-          ${best ? `<p class="feedback">Лучшее время за сессию на ${size}×${size}: ${best.toFixed(1)} с</p>` : ""}
+          ${best ? `<p class="feedback">Личный рекорд на ${size}×${size}: ${best.value.toFixed(1)} с</p>` : ""}
           <button class="btn filled" id="start" type="button">Начать</button>
         </div>`;
       container.querySelectorAll("#sizeGroup .chip").forEach(chip => {
@@ -90,14 +93,19 @@ export default {
         clearInterval(timerId);
         timerId = null;
         const elapsed = (performance.now() - startedAt) / 1000;
-        if (!bestTimes[size] || elapsed < bestTimes[size]) bestTimes[size] = elapsed;
+        const timePerCell = elapsed / total;
+        const outcome = timePerCell < 1.0 ? "up" : timePerCell > 2.5 ? "down" : "stay";
+        const adjusted = adjustLevel("schulte", LEVELS, size, outcome);
+        const difficultyNote = adjusted.direction === "up" ? `Быстро прошёл — в следующий раз предложим ${adjusted.next}×${adjusted.next}`
+          : adjusted.direction === "down" ? `Пока сложновато — в следующий раз предложим ${adjusted.next}×${adjusted.next}` : null;
         api.showResult(container, {
           headline: "Готово!",
           stats: [
             { value: `${elapsed.toFixed(1)} с`, label: "Время" },
-            { value: `${bestTimes[size].toFixed(1)} с`, label: "Лучшее за сессию" },
             { value: `${size}×${size}`, label: "Сетка" },
           ],
+          record: { key: `schulte:${size}`, value: elapsed, direction: "lower", format: v => `${v.toFixed(1)} с` },
+          difficultyNote,
           onRestart: renderIntro,
         });
       }

@@ -1,8 +1,13 @@
 "use strict";
-/* N-back: буквы-согласные, ~500мс показ / ~1600мс пауза, один блок ~22 пробы,
-   N выбирается вручную (1..3), без автоповышения внутри забега. */
+/* N-back: буквы-согласные, ~500мс показ / ~1600мс пауза, один блок ~22 пробы.
+   N выбирается вручную чипами, но стартовое значение и подсказка на будущее —
+   от автоподбора (assets/difficulty.js): без автоповышения внутри забега,
+   только между попытками. */
+
+import { getLevel, adjustLevel } from "../difficulty.js";
 
 const LETTERS = ["Б","В","Г","Д","Ж","К","Л","М","Н","П","Р","С","Т","Ф","Х"];
+const LEVELS = [1, 2, 3];
 const TOTAL = 22;
 const SHOW_MS = 900;
 const GAP_MS = 700;
@@ -19,7 +24,7 @@ function buildLetters(n) {
 export default {
   mount(container, api) {
     let running = true;
-    let n = 2;
+    let n = getLevel("nback", LEVELS, 2);
     let keydownHandler = null;
     let timers = [];
     const clearTimers = () => { timers.forEach(clearTimeout); timers = []; };
@@ -97,6 +102,10 @@ export default {
         const answered = hits + misses + falseAlarms + correctRejects;
         const correct = hits + correctRejects;
         const accuracy = answered ? Math.round((100 * correct) / answered) : 0;
+        const outcome = accuracy >= 85 ? "up" : accuracy < 60 ? "down" : "stay";
+        const { direction, next } = adjustLevel("nback", LEVELS, n, outcome);
+        const difficultyNote = direction === "up" ? `Точность высокая — в следующий раз предложим N=${next}`
+          : direction === "down" ? `Пока сложновато — в следующий раз предложим N=${next}` : null;
         api.showResult(container, {
           headline: "Забег завершён",
           stats: [
@@ -105,6 +114,8 @@ export default {
             { value: misses, label: "Пропущено" },
             { value: falseAlarms, label: "Ложных нажатий" },
           ],
+          record: { key: `nback:${n}`, value: accuracy, direction: "higher", format: v => `${v}%` },
+          difficultyNote,
           onRestart: renderIntro,
         });
       }

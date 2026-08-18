@@ -84,6 +84,32 @@ body{
   min-height:100vh;
 }
 
+/* Замена бегущего луча (bh-sweep из Shared/brand.css — общая раскладка фона,
+   не повадка искр, поэтому переопределяем только здесь, локально): вместо
+   света, идущего по комнате слева направо, — волна импульса, расходящаяся
+   от очага наружу и гаснущая, как сигнал, а не движущийся источник света.
+   Тот же элемент (.bh-sweep), другая форма и анимация — фон остаётся с тремя
+   слоями, просто средний слой теперь ведёт себя иначе. */
+.bh-sweep--pulse{
+  inset:auto; left:50%; bottom:-34%;
+  width:min(92%, 46rem); aspect-ratio:1; border-radius:50%;
+  background:radial-gradient(circle,
+    transparent 58%,
+    color-mix(in srgb, var(--flame-tip) 32%, transparent) 60%,
+    transparent 64%);
+  opacity:0;
+  animation:bh-thought 7s ease-out infinite;
+}
+@keyframes bh-thought{
+  0%  { transform:translateX(-50%) scale(.7); opacity:0 }
+  14% { opacity:.55 }
+  55% { opacity:0 }
+  100%{ transform:translateX(-50%) scale(2.1); opacity:0 }
+}
+@media (prefers-reduced-motion: reduce){
+  .bh-sweep--pulse{ animation-duration:.01ms !important; animation-iteration-count:1 !important; opacity:0 !important; }
+}
+
 /* ===================== ШАПКА ===================== */
 .topbar{
   position:relative;z-index:1;
@@ -99,6 +125,7 @@ body{
 .icon-btn:hover::after{opacity:.08}
 .icon-btn:active::after{opacity:.12}
 .icon{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.is-hidden{display:none !important}
 
 /* ===================== ГЕРОЙ ===================== */
 .hero{
@@ -107,6 +134,7 @@ body{
 }
 .hero h1{font-size:clamp(28px,4vw,38px);font-weight:650;letter-spacing:-.01em}
 .hero p{margin-top:10px;font-size:15px;color:var(--md-sys-color-on-surface-variant);max-width:48ch;margin-inline:auto}
+.hero .btn{margin-top:22px}
 
 /* ===================== ОСНОВНАЯ ОБЛАСТЬ ===================== */
 #view{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:0 20px 72px}
@@ -134,6 +162,11 @@ body{
 .ex-card .bh-mark{width:1.6em;height:1.6em;flex:none;opacity:.9}
 .ex-card h2{font-size:16.5px;font-weight:650;letter-spacing:-.005em;flex:1}
 .ex-card .teaser{font-size:13.5px;line-height:1.5;color:var(--md-sys-color-on-surface-variant)}
+.ex-card .badge{
+  align-self:flex-start;margin-top:2px;padding:3px 10px;border-radius:var(--r-full);
+  font-size:11.5px;font-weight:650;color:var(--flame-base);
+  background:color-mix(in srgb, var(--flame-tip) 16%, transparent);
+}
 
 /* ===================== УПРАЖНЕНИЕ: ОБЩАЯ ОБВЯЗКА ===================== */
 .ex-header{display:flex;align-items:center;gap:12px;padding:28px 0 22px}
@@ -250,11 +283,14 @@ body{
 .feedback.is-good{color:#2e7d32}
 .feedback.is-bad{color:var(--md-sys-color-error)}
 
-/* Ханойская башня */
+/* Ханойская башня. flex-direction:column (не column-reverse!) — первый диск
+   в DOM должен лечь СВЕРХУ, а не снизу: .hanoi-peg::after (плашка-основание)
+   идёт последним элементом среди flex-детей, и в column-reverse она уезжала
+   бы на самый верх, переворачивая всю башню. */
 .hanoi-board{display:flex;gap:22px;align-items:flex-end;justify-content:center;width:100%;padding-top:10px}
 .hanoi-peg{
   all:unset;cursor:pointer;position:relative;flex:1;max-width:9rem;
-  display:flex;flex-direction:column-reverse;align-items:center;gap:6px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
   padding:0 0 14px;border-radius:var(--r-s);
 }
 .hanoi-peg::before{
@@ -266,10 +302,18 @@ body{
   background:var(--md-sys-color-outline-variant);
 }
 .hanoi-peg.is-selected{outline:2px dashed var(--md-sys-color-primary);outline-offset:4px;border-radius:var(--r-m)}
+.hanoi-peg.is-drop-target{outline:2px dashed var(--flame-tip);outline-offset:4px;border-radius:var(--r-m)}
 .hanoi-disk{
   position:relative;z-index:1;height:22px;border-radius:var(--r-full);
   background:color-mix(in srgb, var(--flame-tip) var(--tone,50%), var(--flame-base));
   box-shadow:var(--e1);
+}
+.hanoi-disk.is-top{cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+.hanoi-disk.is-dragging{opacity:.3}
+.hanoi-drag-ghost{
+  position:fixed;z-index:999;pointer-events:none;display:none;
+  border-radius:var(--r-full);box-shadow:var(--e2);opacity:.92;
+  background:color-mix(in srgb, var(--flame-tip) 50%, var(--flame-base));
 }
 
 /* Мысленное вращение фигур */
@@ -289,6 +333,43 @@ body{
 .switch-stimulus{display:grid;place-items:center;width:8rem;height:8rem;border-radius:var(--r-l)}
 .switch-stimulus .n{font-size:44px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.25)}
 .switch-answers{display:flex;gap:14px}
+
+/* Trail Making: узлы разбросаны случайно по площадке, линия рисуется поверх
+   SVG-оверлеем по мере кликов — в отличие от таблиц Шульте это не сетка,
+   а сканирование площади плюс переключение между числами и буквами. */
+.trail-stage{
+  position:relative;width:100%;max-width:34rem;height:320px;
+  border-radius:var(--r-l);background:var(--md-sys-color-surface-container);
+  overflow:hidden;
+}
+.trail-lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.trail-lines path{fill:none;stroke:var(--flame-tip);stroke-width:2.5;stroke-linecap:round;opacity:.75}
+.trail-node{
+  all:unset;position:absolute;width:38px;height:38px;margin-left:-19px;margin-top:-19px;
+  border-radius:50%;display:grid;place-items:center;cursor:pointer;
+  background:var(--md-sys-color-surface-container-high);border:2px solid var(--md-sys-color-outline-variant);
+  font-weight:700;font-size:14px;color:var(--md-sys-color-on-surface);
+}
+.trail-node.is-done{background:var(--md-sys-color-secondary-container);color:var(--md-sys-color-on-secondary-container);border-color:transparent}
+.trail-node.is-wrong{background:var(--md-sys-color-error-container);color:var(--md-sys-color-on-error-container)}
+
+/* Категории на скорость: найденные слова оседают чипами в списке. */
+.word-list{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:36rem;min-height:2.2rem}
+.word-chip{padding:5px 12px;border-radius:var(--r-full);font-size:13px;background:var(--md-sys-color-secondary-container);color:var(--md-sys-color-on-secondary-container)}
+
+/* Reaction time */
+.reaction-box{
+  all:unset;box-sizing:border-box;cursor:pointer;user-select:none;-webkit-user-select:none;
+  width:100%;max-width:22rem;height:220px;border-radius:var(--r-l);
+  display:grid;place-items:center;text-align:center;padding:16px;
+  font-size:20px;font-weight:650;
+  background:var(--md-sys-color-surface-container-high);color:var(--md-sys-color-on-surface);
+}
+.reaction-box.is-wait{background:var(--md-sys-color-error-container);color:var(--md-sys-color-on-error-container)}
+.reaction-box.is-go{background:#2e7d32;color:#fff}
+
+/* Устный счёт */
+.math-expr{font-size:38px;font-weight:700;font-variant-numeric:tabular-nums}
 
 /* ===================== ФУТЕР ===================== */
 .foot{

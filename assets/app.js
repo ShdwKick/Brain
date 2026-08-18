@@ -1,11 +1,15 @@
 "use strict";
 /**
  * Тренажёр «Пораскинем мозгами?»: хаб + hash-роутер на одной странице.
- * Без бэкенда и без сохранения прогресса — каждый забег живёт только в
- * памяти вкладки. Список упражнений — данные, а не разметка: карточки хаба
- * собираются из EXERCISES, сами упражнения грузятся динамическим import()
- * по мере открытия (см. Design/README.md про отсутствие авторизации здесь).
+ * Без бэкенда и без авторизации — но личные рекорды всё же живут в
+ * localStorage конкретного браузера (см. assets/progress.js), это не
+ * противоречит "без сохранения" из ранних версий: там речь была про
+ * серверный аккаунт, а не про то, есть ли смысл возвращаться. Список
+ * упражнений — данные, а не разметка: карточки хаба собираются из
+ * EXERCISES, сами упражнения грузятся динамическим import() по мере
+ * открытия (см. Design/README.md про отсутствие авторизации здесь).
  */
+import { recordBest, getBest, timesLabel } from "./progress.js";
 
 const $ = id => document.getElementById(id);
 const view = $("view");
@@ -30,33 +34,91 @@ $("themeBtn").addEventListener("click", () => {
   applyTheme(next);
 });
 
+/* ---------- PWA: офлайн-кэш и установка на экран ---------- */
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => { /* офлайн просто не заработает, страница и так рабочая */ });
+  });
+}
+
+let deferredInstall = null;
+window.addEventListener("beforeinstallprompt", e => {
+  e.preventDefault();
+  deferredInstall = e;
+  $("installBtn").classList.remove("is-hidden");
+});
+$("installBtn").addEventListener("click", async () => {
+  if (!deferredInstall) return;
+  deferredInstall.prompt();
+  await deferredInstall.userChoice;
+  deferredInstall = null;
+  $("installBtn").classList.add("is-hidden");
+});
+window.addEventListener("appinstalled", () => {
+  deferredInstall = null;
+  $("installBtn").classList.add("is-hidden");
+});
+
 /* ---------- реестр упражнений ---------- */
 
 const EXERCISES = [
   { id: "nback", domain: "Рабочая память", name: "N-back",
     teaser: "Жми, когда текущая буква совпадает с той, что была N шагов назад.",
-    load: () => import("./exercises/nback.js") },
+    load: () => import("./exercises/nback.js"),
+    badgeKey: "nback:2", badgeFormat: v => `${v}%` },
+  { id: "dualnback", domain: "Рабочая память", name: "Dual n-back",
+    teaser: "Позиция и буква одновременно — две независимые реакции.",
+    load: () => import("./exercises/dualnback.js"),
+    badgeKey: "dualnback:2", badgeFormat: v => `${v}%` },
   { id: "corsi", domain: "Рабочая память", name: "Corsi tapping",
     teaser: "Повтори мигающую последовательность блоков на сетке.",
-    load: () => import("./exercises/corsi.js") },
+    load: () => import("./exercises/corsi.js"),
+    badgeKey: "corsi:3", badgeFormat: v => `длина ${v}` },
+  { id: "pairs", domain: "Рабочая память", name: "Парная память",
+    teaser: "Найди все пары карточек за минимум попыток.",
+    load: () => import("./exercises/pairs.js"),
+    badgeKey: "pairs:8", badgeFormat: v => `${v} попыток` },
   { id: "schulte", domain: "Внимание и скорость", name: "Таблицы Шульте",
     teaser: "Найди числа по порядку как можно быстрее.",
-    load: () => import("./exercises/schulte.js") },
+    load: () => import("./exercises/schulte.js"),
+    badgeKey: "schulte:4", badgeFormat: v => `${v.toFixed(1)} с` },
   { id: "stroop", domain: "Внимание и скорость", name: "Струп-тест",
     teaser: "Назови цвет чернил, а не то, что написано словом.",
-    load: () => import("./exercises/stroop.js") },
+    load: () => import("./exercises/stroop.js"),
+    badgeKey: "stroop", badgeFormat: v => `${v}%` },
+  { id: "trail", domain: "Внимание и скорость", name: "Trail Making",
+    teaser: "Соединяй числа и буквы по очереди: 1, А, 2, Б, 3, В...",
+    load: () => import("./exercises/trail.js"),
+    badgeKey: "trail:8", badgeFormat: v => `${v.toFixed(1)} с` },
+  { id: "reaction", domain: "Внимание и скорость", name: "Скорость реакции",
+    teaser: "Жди сигнала и жми как можно быстрее.",
+    load: () => import("./exercises/reaction.js"),
+    badgeKey: "reaction", badgeFormat: v => `${Math.round(v)} мс` },
   { id: "rotation", domain: "Пространственное мышление", name: "Мысленное вращение",
     teaser: "Найди все настоящие повороты фигуры среди похожих.",
-    load: () => import("./exercises/rotation.js") },
+    load: () => import("./exercises/rotation.js"),
+    badgeKey: "rotation", badgeFormat: v => `${v}/8` },
   { id: "hanoi", domain: "Планирование", name: "Ханойская башня",
     teaser: "Перенеси все диски на третий стержень за минимум ходов.",
-    load: () => import("./exercises/hanoi.js") },
+    load: () => import("./exercises/hanoi.js"),
+    badgeKey: "hanoi", badgeFormat: v => `${v}% эффективность` },
   { id: "anagrams", domain: "Вербальные навыки", name: "Анаграммы",
     teaser: "Собери слово из перемешанных букв на время.",
-    load: () => import("./exercises/anagrams.js") },
+    load: () => import("./exercises/anagrams.js"),
+    badgeKey: "anagrams:medium", badgeFormat: v => `${v}/8` },
+  { id: "categories", domain: "Вербальные навыки", name: "Категории на скорость",
+    teaser: "Назови как можно больше слов из категории за 45 секунд.",
+    load: () => import("./exercises/categories.js"),
+    badgeKey: null, badgeFormat: null },
   { id: "switching", domain: "Когнитивная гибкость", name: "Переключение правил",
     teaser: "Правило меняется без предупреждения — успевай подстроиться.",
-    load: () => import("./exercises/switching.js") },
+    load: () => import("./exercises/switching.js"),
+    badgeKey: "switching", badgeFormat: v => `${v}%` },
+  { id: "mathsprint", domain: "Числовая беглость", name: "Устный счёт",
+    teaser: "Решай примеры на скорость — 60 секунд на как можно больше.",
+    load: () => import("./exercises/mathsprint.js"),
+    badgeKey: "mathsprint:medium", badgeFormat: v => `${v} задач` },
 ];
 const byId = new Map(EXERCISES.map(e => [e.id, e]));
 
@@ -79,13 +141,22 @@ function markSvg(gradId) {
 
 function makeApi() {
   return {
-    showResult(container, { headline, stats = [], onRestart } = {}) {
+    showResult(container, { headline, stats = [], record, difficultyNote, onRestart } = {}) {
+      let recordLine = "";
+      if (record) {
+        const { isNewBest, best, plays } = recordBest(record.key, { value: record.value, direction: record.direction });
+        const display = record.format ? record.format(best) : best;
+        recordLine = `<p class="feedback${isNewBest ? " is-good" : ""}">${isNewBest ? "Новый личный рекорд: " : "Личный рекорд: "}${display} · сыграно ${timesLabel(plays)}</p>`;
+      }
+      const difficultyLine = difficultyNote ? `<p class="feedback">${difficultyNote}</p>` : "";
       container.innerHTML = `
         <div class="ex-result">
           <p class="headline">${headline}</p>
           <div class="stat-row">
             ${stats.map(s => `<div class="stat"><span class="v">${s.value}</span><span class="l">${s.label}</span></div>`).join("")}
           </div>
+          ${recordLine}
+          ${difficultyLine}
           <div class="actions">
             <button class="btn filled" id="exRestart" type="button">Сыграть ещё раз</button>
             <button class="btn outlined" id="exHub" type="button">Все упражнения</button>
@@ -123,26 +194,36 @@ function renderHub() {
   view.innerHTML = `
     <header class="hero">
       <h1>Пораскинем мозгами?</h1>
-      <p>Восемь коротких упражнений на память, внимание и гибкость мышления.
-        Без входа, без сохранения — открой и играй.</p>
+      <p>${EXERCISES.length} коротких упражнений на память, внимание, счёт и
+        гибкость мышления. Без входа, без сохранения аккаунта — открой и играй.</p>
+      <button class="btn filled" id="randomBtn" type="button">Случайное упражнение</button>
     </header>
     ${[...groups.entries()].map(([domain, items], gi) => `
       <section class="domain-group">
         <h2 class="domain-title">${domain}</h2>
         <div class="hub-grid">
-          ${items.map((ex, i) => `
+          ${items.map((ex, i) => {
+            const best = ex.badgeKey ? getBest(ex.badgeKey) : null;
+            const badge = best ? `<p class="badge">Рекорд: ${ex.badgeFormat(best.value)}</p>` : "";
+            return `
             <button class="ex-card" type="button" data-go="${ex.id}">
               <div class="row">
                 ${markSvg(`hubMark${gi}-${i}`)}
                 <h2>${ex.name}</h2>
               </div>
               <p class="teaser">${ex.teaser}</p>
-            </button>`).join("")}
+              ${badge}
+            </button>`;
+          }).join("")}
         </div>
       </section>`).join("")}
   `;
   view.querySelectorAll("[data-go]").forEach(btn => {
     btn.addEventListener("click", () => { location.hash = "#/" + btn.dataset.go; });
+  });
+  $("randomBtn").addEventListener("click", () => {
+    const pick = EXERCISES[Math.floor(Math.random() * EXERCISES.length)];
+    location.hash = "#/" + pick.id;
   });
 }
 

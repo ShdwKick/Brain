@@ -1,0 +1,21 @@
+<!-- Источник для assets/icons/icon-192.png и icon-512.png. Сам файл никуда
+     не подключён (PWA-иконки должны быть растровыми ради apple-touch-icon и
+     старых читалок манифеста) — при смене цветов лития перегенерировать PNG
+     из этого SVG (например, через canvas в браузере) и положить рядом. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2e1024"/>
+      <stop offset="1" stop-color="#120a13"/>
+    </linearGradient>
+    <linearGradient id="flame" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#9d174d"/>
+      <stop offset="1" stop-color="#ff5c8a"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <g transform="translate(256,256) scale(12) translate(-12,-12)">
+    <path fill="url(#flame)" fill-rule="evenodd"
+      d="M12 1.2C13.6 5 16.4 6.6 18.2 9.4C21.4 14.4 18.6 22.4 12 22.4C5.4 22.4 2.6 14.4 5.8 9.4C7.2 7.2 9.2 6 10.2 3.4C10.9 5.6 11.4 6.6 12 7.4C12.4 5.6 12.3 3.4 12 1.2ZM12 9.8 7.4 13.6V19.2H16.6V13.6Z"/>
+  </g>
+</svg>

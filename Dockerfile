@@ -6,10 +6,11 @@ WORKDIR /app
 # один файл на встроенном http, страница статическая, бэкенда нет.
 COPY server.js ./
 COPY index.html ./
+COPY sw.js ./
 COPY assets/ ./assets/
 
 RUN set -e; \
-    for f in server.js index.html; do \
+    for f in server.js index.html sw.js; do \
       test -f "$f" || { echo "В образе нет $f — проверьте COPY в Dockerfile"; exit 1; }; \
     done; \
     node --check server.js

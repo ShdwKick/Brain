@@ -97,6 +97,7 @@ export default {
             { value: incorrect, label: "Ошибок" },
             { value: bestStreak, label: "Лучшая серия" },
           ],
+          record: { key: "stroop", value: accuracy, direction: "higher", format: v => `${v}%` },
           onRestart: renderIntro,
         });
       }
