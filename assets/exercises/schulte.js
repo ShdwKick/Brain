@@ -38,7 +38,7 @@ export default {
           </div>
           <label class="check-row">
             <input type="checkbox" id="hardMode" ${hardMode ? "checked" : ""}>
-            <span>Сложный режим: подсветка найденной клетки гаснет через секунду</span>
+            <span>Сложный режим: подсветка найденной клетки гаснет</span>
           </label>
           ${best ? `<p class="feedback">Личный рекорд на ${size}×${size}${hardMode ? " (сложный режим)" : ""}: ${best.value.toFixed(1)} с</p>` : ""}
           <button class="btn filled" id="start" type="button">Начать</button>
