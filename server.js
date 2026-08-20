@@ -17,9 +17,10 @@ const ROOT = __dirname;
 
 // sw.js обязан лежать в корне и отдаваться с корня: scope service worker'а по
 // умолчанию — каталог, откуда он загружен, а офлайн нужен всей странице ("/"),
-// не только assets/. Единственный root-файл вне index.html, поэтому свой
-// белый список, как ROOT_VERIFICATION_FILES у Home.
-const ROOT_ASSETS = ["sw.js"];
+// не только assets/. favicon.ico — тоже корневой: браузеры и боты запрашивают
+// его по умолчанию, игнорируя <link rel="icon"> в <head>. Свой белый список,
+// как ROOT_VERIFICATION_FILES у Home.
+const ROOT_ASSETS = ["sw.js", "favicon.ico"];
 
 const TYPES = {
   ".html": "text/html; charset=utf-8",
