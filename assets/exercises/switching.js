@@ -36,6 +36,9 @@ export default {
     }
 
     function startRun() {
+      clearTimers();
+      if (keydownHandler) { document.removeEventListener("keydown", keydownHandler); keydownHandler = null; }
+      api.setRestart(startRun);
       let trial = 0;
       let prevRule = null;
       const log = [];

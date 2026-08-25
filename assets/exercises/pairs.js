@@ -48,6 +48,9 @@ export default {
     }
 
     function startRound() {
+      if (timerId) { clearInterval(timerId); timerId = null; }
+      clearTimers();
+      api.setRestart(startRound);
       const cols = pairsCount <= 8 ? 4 : 6;
       const values = shuffle([...LETTERS.slice(0, pairsCount), ...LETTERS.slice(0, pairsCount)]);
       const cards = values.map(value => ({ value, revealed: false, matched: false }));

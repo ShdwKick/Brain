@@ -7,10 +7,12 @@ WORKDIR /app
 COPY server.js ./
 COPY index.html ./
 COPY sw.js ./
+COPY robots.txt ./
+COPY sitemap.xml ./
 COPY assets/ ./assets/
 
 RUN set -e; \
-    for f in server.js index.html sw.js; do \
+    for f in server.js index.html sw.js robots.txt sitemap.xml; do \
       test -f "$f" || { echo "В образе нет $f — проверьте COPY в Dockerfile"; exit 1; }; \
     done; \
     node --check server.js

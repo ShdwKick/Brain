@@ -52,6 +52,8 @@ export default {
     }
 
     function startRun() {
+      clearTimers();
+      api.setRestart(startRun);
       const cellCount = gridSize * gridSize;
       let bestSpan = 0;
       let length = 3;

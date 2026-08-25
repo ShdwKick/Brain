@@ -54,6 +54,8 @@ export default {
     }
 
     function startRound() {
+      if (timerId) { clearInterval(timerId); timerId = null; }
+      api.setRestart(startRound);
       const seq = [];
       for (let i = 0; i < pairs; i++) { seq.push(String(i + 1)); seq.push(LETTERS[i]); }
       const positions = buildPositions(seq.length);

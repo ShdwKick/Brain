@@ -175,9 +175,18 @@ function markSvg(gradId) {
    пара навигационных методов. Всё остальное (idle/playing) — их собственная
    разметка внутри переданного контейнера. */
 
+const restartIcon = `<svg class="icon" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>`;
+
+// Кнопка рестарта живёт в постоянной шапке упражнения (см. renderExercise),
+// а не в разметке самого упражнения — так у каждого упражнения свой смысл
+// "начать заново" (перегенерировать таблицу, сбросить раунд), но кнопка и
+// её видимость управляются одним и тем же местом вместо 14 копий вёрстки.
+let restartHandler = null;
+
 function makeApi() {
   return {
     showResult(container, { headline, stats = [], record, difficultyNote, onRestart } = {}) {
+      this.setRestart(null);
       let recordLine = "";
       if (record) {
         const { isNewBest, best, plays } = recordBest(record.key, { value: record.value, direction: record.direction });
@@ -203,6 +212,14 @@ function makeApi() {
     },
     navigateHub() {
       location.hash = "#/";
+    },
+    // fn — функция без аргументов, перезапускающая текущий раунд заново
+    // (например, перегенерировать таблицу Шульте); null/undefined скрывает
+    // кнопку — так упражнение само решает, когда рестарт уместен.
+    setRestart(fn) {
+      restartHandler = typeof fn === "function" ? fn : null;
+      const btn = $("exRestartBtn");
+      if (btn) btn.classList.toggle("is-hidden", !restartHandler);
     },
   };
 }
@@ -314,6 +331,7 @@ async function renderExercise(id) {
   const meta = byId.get(id);
   if (!meta) { location.hash = "#/"; return; }
 
+  restartHandler = null;
   const token = ++navToken;
   view.innerHTML = `
     <div class="ex-header">
@@ -324,10 +342,12 @@ async function renderExercise(id) {
         <h1>${meta.name}</h1>
         <p class="domain-tag">${meta.domain}</p>
       </div>
+      <button class="icon-btn is-hidden" id="exRestartBtn" type="button" title="Начать заново" aria-label="Начать заново">${restartIcon}</button>
     </div>
     <div class="ex-stage" id="exStage" aria-live="polite"></div>
   `;
   $("exBack").addEventListener("click", () => { location.hash = "#/"; });
+  $("exRestartBtn").addEventListener("click", () => { if (restartHandler) restartHandler(); });
   const stage = $("exStage");
   stage.innerHTML = `<p class="feedback">Загрузка…</p>`;
 

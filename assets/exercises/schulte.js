@@ -57,6 +57,8 @@ export default {
     }
 
     function startRound() {
+      if (timerId) { clearInterval(timerId); timerId = null; }
+      api.setRestart(startRound);
       const total = size * size;
       const order = shuffled(total);
       let next = 1;

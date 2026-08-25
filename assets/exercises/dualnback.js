@@ -54,6 +54,9 @@ export default {
     }
 
     function startRound() {
+      clearTimers();
+      if (keydownHandler) { document.removeEventListener("keydown", keydownHandler); keydownHandler = null; }
+      api.setRestart(startRound);
       const { positions, letters } = buildTrials(n);
       let idx = -1;
       let posResponded = false, letResponded = false;

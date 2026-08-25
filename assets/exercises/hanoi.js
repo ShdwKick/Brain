@@ -35,6 +35,9 @@ export default {
     }
 
     function startRun() {
+      clearTimers();
+      removeGhost();
+      api.setRestart(startRun);
       const n = level;
       const pegs = [Array.from({ length: n }, (_, i) => n - i), [], []];
       let selected = null;

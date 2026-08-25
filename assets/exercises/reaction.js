@@ -23,6 +23,8 @@ export default {
     }
 
     function startRun() {
+      clearTimers();
+      api.setRestart(startRun);
       let trial = 0;
       const results = [];
       runTrial();

@@ -64,6 +64,8 @@ export default {
     }
 
     function startRun() {
+      clearTimers();
+      api.setRestart(startRun);
       let round = 0;
       let scoreCorrectPicks = 0;
       let scoreWrongPicks = 0;

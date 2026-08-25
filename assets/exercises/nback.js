@@ -52,6 +52,9 @@ export default {
     }
 
     function startRound() {
+      clearTimers();
+      if (keydownHandler) { document.removeEventListener("keydown", keydownHandler); keydownHandler = null; }
+      api.setRestart(startRound);
       const letters = buildLetters(n);
       let idx = -1;
       let responded = false;

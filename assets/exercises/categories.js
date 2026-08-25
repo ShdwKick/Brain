@@ -74,6 +74,8 @@ export default {
     }
 
     function startRound() {
+      if (timerId) { clearInterval(timerId); timerId = null; }
+      api.setRestart(startRound);
       const keys = Object.keys(CATEGORIES);
       const catKey = keys[Math.floor(Math.random() * keys.length)];
       const cat = CATEGORIES[catKey];

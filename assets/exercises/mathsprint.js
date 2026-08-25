@@ -59,6 +59,8 @@ export default {
     }
 
     function startRound() {
+      if (timerId) { clearInterval(timerId); timerId = null; }
+      api.setRestart(startRound);
       let timeLeft = ROUND_SECONDS;
       let correct = 0, total = 0;
       let current = null;

@@ -70,6 +70,9 @@ export default {
     }
 
     function startRun() {
+      if (timerId) { clearInterval(timerId); timerId = null; }
+      if (advanceTimer) { clearTimeout(advanceTimer); advanceTimer = null; }
+      api.setRestart(startRun);
       let wordIndex = 0;
       let score = 0;
 
