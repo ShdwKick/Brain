@@ -7,7 +7,7 @@ import { getBest } from "../progress.js";
 import { getLevel, adjustLevel } from "../difficulty.js";
 import { good, bad } from "../feedback.js";
 
-const LEVELS = [3, 4, 5, 6];
+const LEVELS = [3, 4, 5, 6, 7, 8];
 
 function shuffled(n) {
   const arr = Array.from({ length: n }, (_, i) => i + 1);
@@ -33,7 +33,7 @@ export default {
             Ошибочный клик ничего не портит, просто продолжай.</p>
           <div class="ex-options">
             <div class="chip-group" id="sizeGroup">
-              ${[3, 4, 5, 6].map(v => `<button class="chip" type="button" data-size="${v}" aria-pressed="${v === size}">${v}×${v}</button>`).join("")}
+              ${LEVELS.map(v => `<button class="chip" type="button" data-size="${v}" aria-pressed="${v === size}">${v}×${v}</button>`).join("")}
             </div>
           </div>
           <label class="check-row">

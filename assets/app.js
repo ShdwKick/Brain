@@ -100,7 +100,10 @@ window.addEventListener("appinstalled", () => {
 /* ---------- реестр упражнений ---------- */
 
 const TIER_LABEL = { easy: "лёгкий", medium: "средний", hard: "сложный" };
-const CATEGORY_LABEL = { animals: "Животные", fruits: "Фрукты и овощи", countries: "Страны", professions: "Профессии" };
+const CATEGORY_LABEL = {
+  animals: "Животные", fruits: "Фрукты и овощи", countries: "Страны", professions: "Профессии",
+  cities: "Города", sports: "Виды спорта", transport: "Транспорт",
+};
 
 // direction — то же самое "higher"/"lower", что каждое упражнение передаёт
 // в api.showResult(record.direction). Здесь дублируется намеренно (как и
