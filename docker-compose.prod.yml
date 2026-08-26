@@ -13,6 +13,17 @@ services:
     environment:
       HOST: 0.0.0.0
       PORT: 8795
+      # Общий auth-сервис — для входа и результатов друзей. ОБЯЗАТЕЛЬНО ровно
+      # тот адрес, что задан у auth в ISSUER: он подписан внутрь токенов.
+      # Сервис должен быть зарегистрирован в auth как клиент:
+      #   docker compose exec auth node server.js client-add brain "Пораскинем мозгами?" https://brain.burninghouse.ru/
+      AUTH_ISSUER: https://auth.burninghouse.ru
+      AUTH_CLIENT_ID: brain
     ports:
       # Только на localhost — наружу отдаёт nginx на 443 (см. deploy/nginx-brain-443.conf).
       - "127.0.0.1:8795:8795"
+    volumes:
+      - brain-data:/app/data
+
+volumes:
+  brain-data:

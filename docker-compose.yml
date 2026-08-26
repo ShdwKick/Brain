@@ -9,8 +9,17 @@ services:
     environment:
       HOST: 0.0.0.0
       PORT: 8795
+      # Общий auth-сервис — для входа и результатов друзей. Локально см.
+      # docker-compose.dev.yml в репозитории Auth (поднимает auth и этот сервис
+      # разом). Необязателен: без него сервер стартует нормально, просто вход
+      # не предлагается (см. комментарий в server.js).
+      AUTH_ISSUER: http://localhost:8788
+      AUTH_CLIENT_ID: brain
     ports:
       # По умолчанию слушаем только localhost — наружу отдаёт nginx (см. README.md остальных сервисов).
       - "127.0.0.1:8795:8795"
+    volumes:
+      - brain-data:/app/data
 
-# Ни базы, ни volume: страница статическая, состояния не хранит.
+volumes:
+  brain-data:

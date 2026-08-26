@@ -5,15 +5,17 @@
    по умолчанию ограничился бы каталогом, откуда файл отдан, и не накрыл
    бы навигацию по "/". */
 
-const CACHE = "brain-shell-v2";
+const CACHE = "brain-shell-v3";
 const SHELL = [
   "/",
   "/index.html",
   "/assets/styles.css",
   "/assets/brand.css",
   "/assets/brand.js",
+  "/assets/auth-client.js",
   "/assets/app.js",
   "/assets/progress.js",
+  "/assets/feedback.js",
   "/assets/favicon.svg",
   "/assets/manifest.webmanifest",
   "/assets/icons/icon-192.png",

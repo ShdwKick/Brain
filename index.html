@@ -5,10 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
 <title>Пораскинем мозгами? — BurningHouse</title>
-<!-- Публичная страница (без входа, без бэкенда) — в отличие от Trip/Movies,
-     тут действительно есть что индексировать: сама страница целиком и есть
+<!-- Публичная страница, вход не нужен — в отличие от Trip/Movies, тут
+     действительно есть что индексировать: сама страница целиком и есть
      инструмент, не просто форма входа. index,follow — явно, тем же приёмом,
-     что у Финансы/calculator.html. -->
+     что у Финансы/calculator.html. (Вход через общий аккаунт BurningHouse
+     всё же есть — опционально, ради результатов друзей, см. assets/app.js.) -->
 <meta name="robots" content="index, follow">
 <meta name="description" content="Четырнадцать коротких упражнений на память, внимание, счёт и гибкость мышления. Без регистрации — просто разминка.">
 <link rel="canonical" href="https://brain.burninghouse.ru/">
@@ -39,11 +40,10 @@
 <link rel="stylesheet" href="assets/brand.css">
 <link rel="stylesheet" href="assets/styles.css">
 
-<!-- JSON-LD: сайт — это один-единственный индексируемый URL (упражнения
-     переключаются по #-хэшу на клиенте, поисковики фрагмент игнорируют и
-     видят только "/"), поэтому все 14 названий явно перечислены здесь как
-     featureList — иначе за пределами уже отрисованного JS хаба поисковику
-     неоткуда узнать, что за конкретные задания есть на странице. -->
+<!-- JSON-LD: у каждого упражнения теперь свой URL и свои <title>/description
+     (см. server.js: seo-routes.js), но featureList всё равно перечисляет все
+     14 названий разом на уровне всего приложения — так понятно, что это за
+     набор инструментов, даже если поисковик дойдёт только до "/". -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -110,6 +110,11 @@
     </button>
     <button class="icon-btn" id="soundBtn" type="button" title="Звук" aria-label="Звук"></button>
     <button class="icon-btn" id="themeBtn" type="button" title="Сменить тему" aria-label="Сменить тему"></button>
+    <!-- Скрыта, пока assets/app.js не подтвердит, что вход вообще доступен
+         (см. initAuth) — так же, как installBtn выше. -->
+    <button class="icon-btn is-hidden" id="authBtn" type="button" title="Войти через аккаунт BurningHouse" aria-label="Войти через аккаунт BurningHouse">
+      <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+    </button>
   </div>
 </div>
 
@@ -118,6 +123,10 @@
 <p class="foot">Пораскинем мозгами? · BurningHouse</p>
 
 <script src="assets/brand.js"></script>
+<!-- Копия Auth/client/auth-client-browser.js — не редактировать здесь, см.
+     Auth/INTEGRATION.md. Обычный скрипт, не модуль: createAuthClient должен
+     быть глобалью к моменту, когда его вызовет initAuth() в app.js. -->
+<script src="assets/auth-client.js"></script>
 <script type="module" src="assets/app.js"></script>
 </body>
 </html>
