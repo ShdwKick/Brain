@@ -5,7 +5,7 @@
    по умолчанию ограничился бы каталогом, откуда файл отдан, и не накрыл
    бы навигацию по "/". */
 
-const CACHE = "brain-shell-v1";
+const CACHE = "brain-shell-v2";
 const SHELL = [
   "/",
   "/index.html",
@@ -49,7 +49,9 @@ self.addEventListener("activate", event => {
 });
 
 // Кэш-первым для всего, что в оболочке; для навигации при офлайне — всегда
-// отдаём закэшированный index.html (роутер сам разберёт хэш на клиенте).
+// отдаём закэшированный index.html (роутер сам разберёт путь на клиенте:
+// адресная строка при этом остаётся /schulte и т.п., хотя тело ответа —
+// закэшированный "/").
 self.addEventListener("fetch", event => {
   if (event.request.method !== "GET") return;
   event.respondWith(

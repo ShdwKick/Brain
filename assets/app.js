@@ -1,8 +1,12 @@
 "use strict";
 /**
- * Тренажёр «Пораскинем мозгами?»: хаб + hash-роутер на одной странице.
- * Без бэкенда и без авторизации — но личные рекорды всё же живут в
- * localStorage конкретного браузера (см. assets/progress.js), это не
+ * Тренажёр «Пораскинем мозгами?»: хаб + роутер на History API (/schulte,
+ * /nback...) на одной странице. Пути настоящие (не #-хэш) специально ради
+ * индексации: сервер (server.js) знает список маршрутов и отдаёт на каждый
+ * тот же index.html, но со своими <title>/description/canonical (см.
+ * seo-routes.js) — так у каждого упражнения свой crawlable URL, а не один
+ * общий на все 14. Без бэкенда и без авторизации — но личные рекорды всё же
+ * живут в localStorage конкретного браузера (см. assets/progress.js), это не
  * противоречит "без сохранения" из ранних версий: там речь была про
  * серверный аккаунт, а не про то, есть ли смысл возвращаться. Список
  * упражнений — данные, а не разметка: карточки хаба собираются из
@@ -211,7 +215,7 @@ function makeApi() {
       container.querySelector("#exHub").addEventListener("click", () => this.navigateHub());
     },
     navigateHub() {
-      location.hash = "#/";
+      navigate("/");
     },
     // fn — функция без аргументов, перезапускающая текущий раунд заново
     // (например, перегенерировать таблицу Шульте); null/undefined скрывает
@@ -224,7 +228,14 @@ function makeApi() {
   };
 }
 
-/* ---------- роутер ---------- */
+/* ---------- роутер (History API) ----------
+   navigate() двигает адресную строку через pushState/replaceState и сам
+   вызывает route() — pushState в отличие от location.hash не порождает
+   событие само по себе. Клики по внутренним ссылкам перехватываются одним
+   делегированным слушателем (см. ниже), поэтому карточкам хаба достаточно
+   быть обычными <a href="/id"> — так их видит и кликает пользователь, и
+   находит поисковый бот, переходящий по ссылкам, а не только тот, что
+   исполняет JS. */
 
 let currentCleanup = null;
 let navToken = 0;
@@ -236,8 +247,27 @@ function teardown() {
   currentCleanup = null;
 }
 
+function navigate(path, { replace = false } = {}) {
+  if (location.pathname === path) return;
+  if (replace) history.replaceState(null, "", path);
+  else history.pushState(null, "", path);
+  route();
+}
+
+document.addEventListener("click", e => {
+  if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  const link = e.target.closest("a[href]");
+  if (!link || link.target === "_blank" || link.hasAttribute("download")) return;
+  const url = new URL(link.href, location.href);
+  if (url.origin !== location.origin) return;
+  e.preventDefault();
+  navigate(url.pathname);
+});
+window.addEventListener("popstate", route);
+
 function renderHub() {
   teardown();
+  document.title = "Пораскинем мозгами? — BurningHouse";
   const groups = new Map();
   EXERCISES.forEach(ex => {
     if (!groups.has(ex.domain)) groups.set(ex.domain, []);
@@ -262,30 +292,28 @@ function renderHub() {
             const best = ex.badgeKey ? getBest(ex.badgeKey) : null;
             const badge = best ? `<p class="badge">Рекорд: ${ex.badgeFormat(best.value)}</p>` : "";
             return `
-            <button class="ex-card" type="button" data-go="${ex.id}">
+            <a class="ex-card" href="/${ex.id}">
               <div class="row">
                 ${markSvg(`hubMark${gi}-${i}`)}
                 <h2>${ex.name}</h2>
               </div>
               <p class="teaser">${ex.teaser}</p>
               ${badge}
-            </button>`;
+            </a>`;
           }).join("")}
         </div>
       </section>`).join("")}
   `;
-  view.querySelectorAll("[data-go]").forEach(btn => {
-    btn.addEventListener("click", () => { location.hash = "#/" + btn.dataset.go; });
-  });
   $("randomBtn").addEventListener("click", () => {
     const pick = EXERCISES[Math.floor(Math.random() * EXERCISES.length)];
-    location.hash = "#/" + pick.id;
+    navigate("/" + pick.id);
   });
-  $("statsBtn").addEventListener("click", () => { location.hash = "#/stats"; });
+  $("statsBtn").addEventListener("click", () => { navigate("/stats"); });
 }
 
 function renderStats() {
   teardown();
+  document.title = "Моя статистика — Пораскинем мозгами?";
   const all = getAllRecords();
   const rows = EXERCISES.map(ex => {
     const prefix = ex.id + ":";
@@ -323,14 +351,15 @@ function renderStats() {
         </div>`).join("") : `<p class="feedback">Пока пусто — сыграй хотя бы раз в любое упражнение, и здесь появится статистика.</p>`}
     </div>
   `;
-  $("statsBack").addEventListener("click", () => { location.hash = "#/"; });
+  $("statsBack").addEventListener("click", () => { navigate("/"); });
 }
 
 async function renderExercise(id) {
   teardown();
   const meta = byId.get(id);
-  if (!meta) { location.hash = "#/"; return; }
+  if (!meta) { navigate("/", { replace: true }); return; }
 
+  document.title = `${meta.name} — Пораскинем мозгами?`;
   restartHandler = null;
   const token = ++navToken;
   view.innerHTML = `
@@ -346,7 +375,7 @@ async function renderExercise(id) {
     </div>
     <div class="ex-stage" id="exStage" aria-live="polite"></div>
   `;
-  $("exBack").addEventListener("click", () => { location.hash = "#/"; });
+  $("exBack").addEventListener("click", () => { navigate("/"); });
   $("exRestartBtn").addEventListener("click", () => { if (restartHandler) restartHandler(); });
   const stage = $("exStage");
   stage.innerHTML = `<p class="feedback">Загрузка…</p>`;
@@ -361,11 +390,10 @@ async function renderExercise(id) {
 }
 
 function route() {
-  const hash = location.hash.replace(/^#\/?/, "");
-  if (!hash) renderHub();
-  else if (hash === "stats") renderStats();
-  else renderExercise(hash);
+  const id = location.pathname.replace(/^\/+/, "").replace(/\/+$/, "");
+  if (!id) renderHub();
+  else if (id === "stats") renderStats();
+  else renderExercise(id);
 }
 
-window.addEventListener("hashchange", route);
 route();

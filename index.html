@@ -38,6 +38,34 @@
 <link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400;8..144,500;8..144,600;8..144,700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/brand.css">
 <link rel="stylesheet" href="assets/styles.css">
+
+<!-- JSON-LD: сайт — это один-единственный индексируемый URL (упражнения
+     переключаются по #-хэшу на клиенте, поисковики фрагмент игнорируют и
+     видят только "/"), поэтому все 14 названий явно перечислены здесь как
+     featureList — иначе за пределами уже отрисованного JS хаба поисковику
+     неоткуда узнать, что за конкретные задания есть на странице. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Пораскинем мозгами?",
+  "alternateName": "BurningHouse Brain",
+  "url": "https://brain.burninghouse.ru/",
+  "description": "Четырнадцать коротких упражнений на память, внимание, счёт и гибкость мышления. Без регистрации — просто разминка.",
+  "inLanguage": "ru",
+  "isAccessibleForFree": true,
+  "applicationCategory": "EducationalApplication",
+  "operatingSystem": "Any",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "RUB" },
+  "featureList": [
+    "N-back", "Dual n-back", "Corsi tapping", "Парная память",
+    "Таблицы Шульте", "Струп-тест", "Trail Making", "Скорость реакции",
+    "Мысленное вращение", "Ханойская башня",
+    "Анаграммы", "Категории на скорость",
+    "Переключение правил", "Устный счёт"
+  ]
+}
+</script>
 </head>
 <body>
 
