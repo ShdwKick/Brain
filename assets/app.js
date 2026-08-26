@@ -386,11 +386,23 @@ function teardown() {
   currentCleanup = null;
 }
 
+// Метрика (см. index.html): счётчик сам шлёт первый визит из init(), но
+// дальше переходы между упражнениями идут через pushState без перезагрузки
+// страницы — обычный автосчёт их не увидит, поэтому шлём "hit" вручную на
+// каждую смену маршрута, кроме самого первого рендера (тот уже посчитан).
+// document.title к этому моменту уже обновлён — установка синхронная, до
+// первого await внутри render*(), а route() эти функции не ждёт.
+const METRIKA_ID = 111965412;
+function trackPageview() {
+  if (typeof ym === "function") ym(METRIKA_ID, "hit", location.href, { title: document.title, referer: document.referrer });
+}
+
 function navigate(path, { replace = false } = {}) {
   if (location.pathname === path) return;
   if (replace) history.replaceState(null, "", path);
   else history.pushState(null, "", path);
   route();
+  trackPageview();
 }
 
 document.addEventListener("click", e => {
@@ -402,7 +414,7 @@ document.addEventListener("click", e => {
   e.preventDefault();
   navigate(url.pathname);
 });
-window.addEventListener("popstate", route);
+window.addEventListener("popstate", () => { route(); trackPageview(); });
 
 function renderHub() {
   teardown();
