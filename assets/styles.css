@@ -385,6 +385,35 @@ body{
 .switch-stimulus .n{font-size:52px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.25)}
 .switch-answers{display:flex;gap:14px}
 
+/* Фланкер-тест: моноширинный шрифт — иначе "←" и "→" в связке с соседними
+   стрелками слегка гуляют по ширине и ряд визуально дрожит между пробами. */
+.flanker-row{font-size:48px;font-weight:700;letter-spacing:.15em;font-variant-numeric:tabular-nums;font-family:ui-monospace,Consolas,monospace}
+
+/* Лабиринт: каждая клетка сама рисует все четыре свои стены через
+   border-*-style (none/solid) — общая стена с соседом получается
+   одинаковой у обеих клеток "бесплатно", потому что генератор изначально
+   зеркалит проход в обе клетки сразу (см. generateMaze в assets/exercises/maze.js). */
+.maze-board{
+  display:grid;
+  grid-template-columns:repeat(var(--size,10), 1fr);
+  grid-template-rows:repeat(var(--size,10), 1fr);
+  width:min(100%, 26rem, calc(100vh - 280px));
+  width:min(100%, 26rem, calc(100dvh - 280px));
+  aspect-ratio:1;
+  border:2px solid var(--md-sys-color-outline);
+  border-radius:var(--r-s);
+  overflow:hidden;
+}
+.maze-cell{
+  box-sizing:border-box;position:relative;cursor:pointer;
+  border-width:2px;border-style:none;border-color:var(--md-sys-color-outline);
+  background:var(--md-sys-color-surface-container-lowest);
+}
+.maze-cell.is-hidden-cell{background:var(--md-sys-color-surface-container-high);cursor:default}
+.maze-cell.is-player::after{content:"";position:absolute;inset:22%;border-radius:50%;background:var(--flame-tip)}
+.maze-cell.is-goal::after{content:"";position:absolute;inset:26%;border-radius:3px;background:var(--md-sys-color-primary)}
+.maze-cell.is-goal.is-player::after{background:var(--flame-tip)}
+
 /* Trail Making: узлы разбросаны случайно по площадке, линия рисуется поверх
    SVG-оверлеем по мере кликов — в отличие от таблиц Шульте это не сетка,
    а сканирование площади плюс переключение между числами и буквами. */

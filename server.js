@@ -51,8 +51,8 @@ const ROOT_ASSETS = ["sw.js", "favicon.ico", "robots.txt", "sitemap.xml"];
 const APP_ROUTES = new Set([
   "", "stats",
   "nback", "dualnback", "corsi", "pairs",
-  "schulte", "stroop", "trail", "reaction",
-  "rotation", "hanoi", "anagrams", "categories",
+  "schulte", "stroop", "trail", "reaction", "flanker",
+  "rotation", "hanoi", "maze", "anagrams", "categories",
   "switching", "mathsprint",
 ]);
 

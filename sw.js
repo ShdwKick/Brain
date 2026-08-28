@@ -5,7 +5,7 @@
    по умолчанию ограничился бы каталогом, откуда файл отдан, и не накрыл
    бы навигацию по "/". */
 
-const CACHE = "brain-shell-v3";
+const CACHE = "brain-shell-v4";
 const SHELL = [
   "/",
   "/index.html",
@@ -28,8 +28,10 @@ const SHELL = [
   "/assets/exercises/stroop.js",
   "/assets/exercises/trail.js",
   "/assets/exercises/reaction.js",
+  "/assets/exercises/flanker.js",
   "/assets/exercises/rotation.js",
   "/assets/exercises/hanoi.js",
+  "/assets/exercises/maze.js",
   "/assets/exercises/anagrams.js",
   "/assets/exercises/categories.js",
   "/assets/exercises/switching.js",

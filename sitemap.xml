@@ -55,6 +55,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://brain.burninghouse.ru/flanker</loc>
+    <lastmod>2026-08-26</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://brain.burninghouse.ru/rotation</loc>
     <lastmod>2026-08-26</lastmod>
     <changefreq>yearly</changefreq>
@@ -62,6 +68,12 @@
   </url>
   <url>
     <loc>https://brain.burninghouse.ru/hanoi</loc>
+    <lastmod>2026-08-26</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://brain.burninghouse.ru/maze</loc>
     <lastmod>2026-08-26</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.8</priority>
