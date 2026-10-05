@@ -5,7 +5,7 @@
    по умолчанию ограничился бы каталогом, откуда файл отдан, и не накрыл
    бы навигацию по "/". */
 
-const CACHE = "brain-shell-v4";
+const CACHE = "brain-shell-v5";
 const SHELL = [
   "/",
   "/index.html",
